@@ -66,6 +66,12 @@
     <string name="unit_tons">tons</string>
     <string name="unit_pieces">pieces</string>
     
+    <!-- Search and filters -->
+    <string name="search_inspections">Search inspections...</string>
+    <string name="all">All</string>
+    <string name="no_inspections">No inspections found</string>
+    <string name="tap_plus_to_create">Tap + to create your first inspection</string>
+    
     <!-- Validation Messages -->
     <string name="error_required_field">This field is required</string>
     <string name="error_invalid_number">Please enter a valid number</string>
