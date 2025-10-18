@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_inspections">
+
+    <fragment
+        android:id="@+id/navigation_inspections"
+        android:name="com.metalinspect.app.presentation.inspection.list.InspectionListFragment"
+        android:label="@string/nav_inspections"
+        tools:layout="@layout/fragment_inspection_list">
+        
+        <action
+            android:id="@+id/action_inspections_to_create_inspection"
+            app:destination="@id/create_inspection_fragment" />
+        
+        <action
+            android:id="@+id/action_inspections_to_inspection_detail"
+            app:destination="@id/inspection_detail_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/create_inspection_fragment"
+        android:name="com.metalinspect.app.presentation.inspection.create.CreateInspectionFragment"
+        android:label="@string/create_inspection"
+        tools:layout="@layout/fragment_create_inspection">
+        
+        <action
+            android:id="@+id/action_create_inspection_to_inspection_detail"
+            app:destination="@id/inspection_detail_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inspection_detail_fragment"
+        android:name="com.metalinspect.app.presentation.inspection.detail.InspectionDetailFragment"
+        android:label="Inspection Details"
+        tools:layout="@layout/fragment_inspection_detail">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+        
+        <action
+            android:id="@+id/action_detail_to_camera"
+            app:destination="@id/navigation_camera" />
+        
+        <action
+            android:id="@+id/action_detail_to_defects"
+            app:destination="@id/defect_list_fragment" />
+        
+        <action
+            android:id="@+id/action_detail_to_gallery"
+            app:destination="@id/photo_gallery_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.metalinspect.app.presentation.camera.InspectionCameraFragment"
+        android:label="Camera"
+        tools:layout="@layout/fragment_inspection_camera">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/photo_gallery_fragment"
+        android:name="com.metalinspect.app.presentation.gallery.PhotoGalleryFragment"
+        android:label="Photo Gallery"
+        tools:layout="@layout/fragment_photo_gallery">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/defect_list_fragment"
+        android:name="com.metalinspect.app.presentation.defects.DefectListFragment"
+        android:label="Defects"
+        tools:layout="@layout/fragment_defect_list">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+        
+        <action
+            android:id="@+id/action_defects_to_add_defect"
+            app:destination="@id/add_defect_dialog" />
+    </fragment>
+
+    <dialog
+        android:id="@+id/add_defect_dialog"
+        android:name="com.metalinspect.app.presentation.defects.AddDefectDialog"
+        android:label="Add Defect"
+        tools:layout="@layout/dialog_add_defect">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+    </dialog>
+
+    <fragment
+        android:id="@+id/navigation_reports"
+        android:name="com.metalinspect.app.presentation.reports.ReportListFragment"
+        android:label="@string/nav_reports"
+        tools:layout="@layout/fragment_report_list">
+        
+        <action
+            android:id="@+id/action_reports_to_preview"
+            app:destination="@id/report_preview_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/report_preview_fragment"
+        android:name="com.metalinspect.app.presentation.reports.ReportPreviewFragment"
+        android:label="Report Preview"
+        tools:layout="@layout/fragment_report_preview">
+        
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.metalinspect.app.presentation.settings.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings">
+        
+        <action
+            android:id="@+id/action_settings_to_inspector_profile"
+            app:destination="@id/inspector_profile_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inspector_profile_fragment"
+        android:name="com.metalinspect.app.presentation.inspector.InspectorProfileFragment"
+        android:label="Inspector Profile"
+        tools:layout="@layout/fragment_inspector_profile" />
+
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.metalinspect.app.presentation.search.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/navigation_permissions"
+        android:name="com.metalinspect.app.presentation.permissions.PermissionsFragment"
+        android:label="Permissions"
+        tools:layout="@layout/fragment_permissions" />
+
+</navigation>

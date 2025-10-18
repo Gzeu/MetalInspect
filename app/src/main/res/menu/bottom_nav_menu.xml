@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_inspections"
+        android:title="@string/nav_inspections"
+        android:icon="@drawable/ic_inspection" />
+
+    <item
+        android:id="@+id/navigation_camera"
+        android:title="@string/nav_camera"
+        android:icon="@drawable/ic_camera" />
+
+    <item
+        android:id="@+id/navigation_reports"
+        android:title="@string/nav_reports"
+        android:icon="@drawable/ic_report" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:title="@string/nav_settings"
+        android:icon="@drawable/ic_settings" />
+
+</menu>
