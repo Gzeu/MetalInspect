@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context=".presentation.camera.InspectionCameraFragment">
+
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Camera Controls -->
+    <LinearLayout
+        android:id="@+id/cameraControls"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/camera_controls_height"
+        android:layout_gravity="bottom"
+        android:background="@drawable/gradient_overlay"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_large">
+
+        <!-- Gallery button -->
+        <ImageButton
+            android:id="@+id/btnGallery"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_gallery"
+            android:src="@drawable/ic_gallery"
+            android:tint="@android:color/white" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Capture button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnCapture"
+            android:layout_width="@dimen/camera_capture_button_size"
+            android:layout_height="@dimen/camera_capture_button_size"
+            android:contentDescription="@string/cd_take_photo"
+            app:backgroundTint="@android:color/white"
+            app:srcCompat="@drawable/ic_camera"
+            app:tint="@color/primary_blue" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Switch camera button -->
+        <ImageButton
+            android:id="@+id/btnSwitchCamera"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Switch Camera"
+            android:src="@drawable/ic_camera_switch"
+            android:tint="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Flash toggle -->
+    <ImageButton
+        android:id="@+id/btnFlashToggle"
+        android:layout_width="@dimen/touch_target_min"
+        android:layout_height="@dimen/touch_target_min"
+        android:layout_gravity="top|end"
+        android:layout_margin="@dimen/spacing_large"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Toggle Flash"
+        android:src="@drawable/ic_flash_off"
+        android:tint="@android:color/white" />
+
+    <!-- Loading indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</FrameLayout>
