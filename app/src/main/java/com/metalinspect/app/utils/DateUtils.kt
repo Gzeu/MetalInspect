@@ -1,79 +1,97 @@
 package com.metalinspect.app.utils
 
-import android.text.format.DateFormat
+import android.text.format.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtils {
     
-    private val dateFormatDisplay = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormatDisplay = SimpleDateFormat("HH:mm", Locale.getDefault())
-    private val dateTimeFormatDisplay = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    private val dateFormatExport = SimpleDateFormat(Constants.CSV_DATE_FORMAT, Locale.getDefault())
+    private val displayDateFormat = SimpleDateFormat(Constants.DISPLAY_DATE_FORMAT, Locale.getDefault())
+    private val displayTimeFormat = SimpleDateFormat(Constants.DISPLAY_TIME_FORMAT, Locale.getDefault())
+    private val exportDateFormat = SimpleDateFormat(Constants.CSV_DATE_FORMAT, Locale.getDefault())
+    private val filenameDateFormat = SimpleDateFormat(Constants.EXPORT_DATE_FORMAT, Locale.getDefault())
     
-    fun formatDate(timestamp: Long): String {
-        return dateFormatDisplay.format(Date(timestamp))
+    fun formatDateTime(timestamp: Long): String {
+        return displayDateFormat.format(Date(timestamp))
     }
     
     fun formatTime(timestamp: Long): String {
-        return timeFormatDisplay.format(Date(timestamp))
-    }
-    
-    fun formatDateTime(timestamp: Long): String {
-        return dateTimeFormatDisplay.format(Date(timestamp))
+        return displayTimeFormat.format(Date(timestamp))
     }
     
     fun formatForExport(timestamp: Long): String {
-        return dateFormatExport.format(Date(timestamp))
+        return exportDateFormat.format(Date(timestamp))
     }
     
-    fun getCurrentTimestamp(): Long {
-        return System.currentTimeMillis()
+    fun formatForFilename(timestamp: Long): String {
+        return filenameDateFormat.format(Date(timestamp))
     }
     
-    fun getStartOfDay(timestamp: Long): Long {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = timestamp
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        return calendar.timeInMillis
-    }
-    
-    fun getEndOfDay(timestamp: Long): Long {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = timestamp
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        calendar.set(Calendar.MILLISECOND, 999)
-        return calendar.timeInMillis
-    }
-    
-    fun getDaysAgo(days: Int): Long {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -days)
-        return getStartOfDay(calendar.timeInMillis)
+    fun formatRelativeTime(timestamp: Long): String {
+        return DateUtils.getRelativeTimeSpanString(
+            timestamp,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS
+        ).toString()
     }
     
     fun isToday(timestamp: Long): Boolean {
-        val today = getStartOfDay(getCurrentTimestamp())
-        val date = getStartOfDay(timestamp)
-        return today == date
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        
+        val tomorrow = Calendar.getInstance().apply {
+            timeInMillis = today.timeInMillis
+            add(Calendar.DAY_OF_YEAR, 1)
+        }
+        
+        return timestamp >= today.timeInMillis && timestamp < tomorrow.timeInMillis
     }
     
     fun isYesterday(timestamp: Long): Boolean {
-        val yesterday = getDaysAgo(1)
-        val date = getStartOfDay(timestamp)
-        return yesterday == date
+        val yesterday = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, -1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        
+        return timestamp >= yesterday.timeInMillis && timestamp < today.timeInMillis
     }
     
-    fun getRelativeTimeString(timestamp: Long): String {
-        return when {
-            isToday(timestamp) -> "Today ${formatTime(timestamp)}"
-            isYesterday(timestamp) -> "Yesterday ${formatTime(timestamp)}"
-            else -> formatDateTime(timestamp)
-        }
+    fun getStartOfDay(timestamp: Long = System.currentTimeMillis()): Long {
+        return Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+    
+    fun getEndOfDay(timestamp: Long = System.currentTimeMillis()): Long {
+        return Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+    }
+    
+    fun getDaysDifference(startTimestamp: Long, endTimestamp: Long): Int {
+        val diffInMs = endTimestamp - startTimestamp
+        return (diffInMs / (24 * 60 * 60 * 1000)).toInt()
     }
 }

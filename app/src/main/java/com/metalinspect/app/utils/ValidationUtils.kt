@@ -1,16 +1,27 @@
 package com.metalinspect.app.utils
 
-import android.util.Patterns
+import java.util.regex.Pattern
 
 object ValidationUtils {
+    
+    private const val MIN_LOT_NUMBER_LENGTH = 3
+    private const val MAX_LOT_NUMBER_LENGTH = 50
+    private const val MIN_DESCRIPTION_LENGTH = 10
+    private const val MAX_DESCRIPTION_LENGTH = 500
+    private const val MAX_NOTES_LENGTH = 1000
+    private const val MAX_CAPTION_LENGTH = 200
+    private const val MIN_NAME_LENGTH = 2
+    private const val MAX_NAME_LENGTH = 100
+    
+    private val LOT_NUMBER_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$")
+    private val CONTAINER_NUMBER_PATTERN = Pattern.compile("^[A-Za-z0-9_-]*$")
     
     fun validateLotNumber(lotNumber: String?): ValidationResult {
         return when {
             lotNumber.isNullOrBlank() -> ValidationResult.Error("Lot number is required")
-            lotNumber.length > Constants.MAX_LOT_NUMBER_LENGTH -> 
-                ValidationResult.Error("Lot number cannot exceed ${Constants.MAX_LOT_NUMBER_LENGTH} characters")
-            !lotNumber.matches(Regex("^[A-Za-z0-9-_]+$")) -> 
-                ValidationResult.Error("Lot number can only contain letters, numbers, hyphens and underscores")
+            lotNumber.length < MIN_LOT_NUMBER_LENGTH -> ValidationResult.Error("Lot number must be at least $MIN_LOT_NUMBER_LENGTH characters")
+            lotNumber.length > MAX_LOT_NUMBER_LENGTH -> ValidationResult.Error("Lot number cannot exceed $MAX_LOT_NUMBER_LENGTH characters")
+            !LOT_NUMBER_PATTERN.matcher(lotNumber).matches() -> ValidationResult.Error("Lot number can only contain letters, numbers, hyphens and underscores")
             else -> ValidationResult.Success
         }
     }
@@ -18,10 +29,8 @@ object ValidationUtils {
     fun validateContainerNumber(containerNumber: String?): ValidationResult {
         return when {
             containerNumber.isNullOrBlank() -> ValidationResult.Success // Optional field
-            containerNumber.length > Constants.MAX_CONTAINER_NUMBER_LENGTH -> 
-                ValidationResult.Error("Container number cannot exceed ${Constants.MAX_CONTAINER_NUMBER_LENGTH} characters")
-            !containerNumber.matches(Regex("^[A-Za-z0-9-_]+$")) -> 
-                ValidationResult.Error("Container number can only contain letters, numbers, hyphens and underscores")
+            containerNumber.length > MAX_LOT_NUMBER_LENGTH -> ValidationResult.Error("Container number cannot exceed $MAX_LOT_NUMBER_LENGTH characters")
+            !CONTAINER_NUMBER_PATTERN.matcher(containerNumber).matches() -> ValidationResult.Error("Container number can only contain letters, numbers, hyphens and underscores")
             else -> ValidationResult.Success
         }
     }
@@ -34,7 +43,7 @@ object ValidationUtils {
                     val value = quantity.toDouble()
                     when {
                         value <= 0 -> ValidationResult.Error("Quantity must be greater than zero")
-                        value > 1_000_000 -> ValidationResult.Error("Quantity cannot exceed 1,000,000")
+                        value > 1000000 -> ValidationResult.Error("Quantity cannot exceed 1,000,000")
                         else -> ValidationResult.Success
                     }
                 } catch (e: NumberFormatException) {
@@ -52,7 +61,7 @@ object ValidationUtils {
                     val value = weight.toDouble()
                     when {
                         value <= 0 -> ValidationResult.Error("Weight must be greater than zero")
-                        value > 10_000_000 -> ValidationResult.Error("Weight cannot exceed 10,000,000")
+                        value > 100000 -> ValidationResult.Error("Weight cannot exceed 100,000 kg")
                         else -> ValidationResult.Success
                     }
                 } catch (e: NumberFormatException) {
@@ -62,20 +71,45 @@ object ValidationUtils {
         }
     }
     
-    fun validatePortLocation(location: String?): ValidationResult {
+    fun validatePortLocation(portLocation: String?): ValidationResult {
         return when {
-            location.isNullOrBlank() -> ValidationResult.Error("Port location is required")
-            location.length < 2 -> ValidationResult.Error("Port location must be at least 2 characters")
-            location.length > 100 -> ValidationResult.Error("Port location cannot exceed 100 characters")
+            portLocation.isNullOrBlank() -> ValidationResult.Error("Port location is required")
+            portLocation.length < 3 -> ValidationResult.Error("Port location must be at least 3 characters")
+            portLocation.length > MAX_NAME_LENGTH -> ValidationResult.Error("Port location cannot exceed $MAX_NAME_LENGTH characters")
             else -> ValidationResult.Success
         }
     }
     
-    fun validateWeatherConditions(weather: String?): ValidationResult {
+    fun validateWeatherConditions(weatherConditions: String?): ValidationResult {
         return when {
-            weather.isNullOrBlank() -> ValidationResult.Error("Weather conditions are required")
-            weather.length < 3 -> ValidationResult.Error("Weather description must be at least 3 characters")
-            weather.length > 100 -> ValidationResult.Error("Weather description cannot exceed 100 characters")
+            weatherConditions.isNullOrBlank() -> ValidationResult.Error("Weather conditions are required")
+            weatherConditions.length < 3 -> ValidationResult.Error("Weather conditions must be at least 3 characters")
+            weatherConditions.length > MAX_NAME_LENGTH -> ValidationResult.Error("Weather conditions cannot exceed $MAX_NAME_LENGTH characters")
+            else -> ValidationResult.Success
+        }
+    }
+    
+    fun validateNotes(notes: String?): ValidationResult {
+        return when {
+            notes.isNullOrBlank() -> ValidationResult.Success // Optional field
+            notes.length > MAX_NOTES_LENGTH -> ValidationResult.Error("Notes cannot exceed $MAX_NOTES_LENGTH characters")
+            else -> ValidationResult.Success
+        }
+    }
+    
+    fun validateDefectDescription(description: String?): ValidationResult {
+        return when {
+            description.isNullOrBlank() -> ValidationResult.Error("Description is required")
+            description.length < MIN_DESCRIPTION_LENGTH -> ValidationResult.Error("Description must be at least $MIN_DESCRIPTION_LENGTH characters")
+            description.length > MAX_DESCRIPTION_LENGTH -> ValidationResult.Error("Description cannot exceed $MAX_DESCRIPTION_LENGTH characters")
+            else -> ValidationResult.Success
+        }
+    }
+    
+    fun validatePhotoCaption(caption: String?): ValidationResult {
+        return when {
+            caption.isNullOrBlank() -> ValidationResult.Success // Optional field
+            caption.length > MAX_CAPTION_LENGTH -> ValidationResult.Error("Caption cannot exceed $MAX_CAPTION_LENGTH characters")
             else -> ValidationResult.Success
         }
     }
@@ -83,10 +117,8 @@ object ValidationUtils {
     fun validateInspectorName(name: String?): ValidationResult {
         return when {
             name.isNullOrBlank() -> ValidationResult.Error("Inspector name is required")
-            name.length < 2 -> ValidationResult.Error("Name must be at least 2 characters")
-            name.length > 50 -> ValidationResult.Error("Name cannot exceed 50 characters")
-            !name.matches(Regex("^[a-zA-Z\\s.-]+$")) -> 
-                ValidationResult.Error("Name can only contain letters, spaces, periods and hyphens")
+            name.length < MIN_NAME_LENGTH -> ValidationResult.Error("Name must be at least $MIN_NAME_LENGTH characters")
+            name.length > MAX_NAME_LENGTH -> ValidationResult.Error("Name cannot exceed $MAX_NAME_LENGTH characters")
             else -> ValidationResult.Success
         }
     }
@@ -94,57 +126,9 @@ object ValidationUtils {
     fun validateCompanyName(company: String?): ValidationResult {
         return when {
             company.isNullOrBlank() -> ValidationResult.Error("Company name is required")
-            company.length < 2 -> ValidationResult.Error("Company name must be at least 2 characters")
-            company.length > 100 -> ValidationResult.Error("Company name cannot exceed 100 characters")
+            company.length < MIN_NAME_LENGTH -> ValidationResult.Error("Company name must be at least $MIN_NAME_LENGTH characters")
+            company.length > MAX_NAME_LENGTH -> ValidationResult.Error("Company name cannot exceed $MAX_NAME_LENGTH characters")
             else -> ValidationResult.Success
         }
     }
-    
-    fun validateEmail(email: String?): ValidationResult {
-        return when {
-            email.isNullOrBlank() -> ValidationResult.Success // Optional field
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> 
-                ValidationResult.Error("Please enter a valid email address")
-            else -> ValidationResult.Success
-        }
-    }
-    
-    fun validateNotes(notes: String?): ValidationResult {
-        return when {
-            notes == null -> ValidationResult.Success // Optional field
-            notes.length > Constants.MAX_NOTES_LENGTH -> 
-                ValidationResult.Error("Notes cannot exceed ${Constants.MAX_NOTES_LENGTH} characters")
-            else -> ValidationResult.Success
-        }
-    }
-    
-    fun validateDefectDescription(description: String?): ValidationResult {
-        return when {
-            description.isNullOrBlank() -> ValidationResult.Error("Defect description is required")
-            description.length < 5 -> ValidationResult.Error("Description must be at least 5 characters")
-            description.length > Constants.MAX_DEFECT_DESCRIPTION_LENGTH -> 
-                ValidationResult.Error("Description cannot exceed ${Constants.MAX_DEFECT_DESCRIPTION_LENGTH} characters")
-            else -> ValidationResult.Success
-        }
-    }
-    
-    fun validatePhotoCaption(caption: String?): ValidationResult {
-        return when {
-            caption == null -> ValidationResult.Success // Optional field
-            caption.length > Constants.MAX_PHOTO_CAPTION_LENGTH -> 
-                ValidationResult.Error("Caption cannot exceed ${Constants.MAX_PHOTO_CAPTION_LENGTH} characters")
-            else -> ValidationResult.Success
-        }
-    }
-}
-
-sealed class ValidationResult {
-    object Success : ValidationResult()
-    data class Error(val message: String) : ValidationResult()
-    
-    val isValid: Boolean
-        get() = this is Success
-    
-    val errorMessage: String?
-        get() = if (this is Error) message else null
 }
