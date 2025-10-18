@@ -28,7 +28,6 @@ class PDFReportGenerator @Inject constructor(
 
     companion object {
         private const val COMPANY_NAME = "MetalInspect Solutions"
-        private const val COMPANY_LOGO_PATH = "logo.png"
         private const val MAX_IMAGE_WIDTH = 400f
         private const val MAX_IMAGE_HEIGHT = 300f
     }
@@ -110,6 +109,7 @@ class PDFReportGenerator @Inject constructor(
             )
         }
 
+        addDetailRow("Inspection ID:", inspection.id)
         addDetailRow("Lot Number:", inspection.lotNumber)
         inspection.containerNumber?.let {
             addDetailRow("Container Number:", it)
@@ -170,20 +170,8 @@ class PDFReportGenerator @Inject constructor(
         defectRecords.forEach { defect ->
             defectTable.addCell(Cell().add(Paragraph(defect.defectType).setFont(regularFont)))
             defectTable.addCell(Cell().add(Paragraph(defect.defectCategory.name).setFont(regularFont)))
-            
-            val severityCell = Cell().add(Paragraph(defect.severity.name).setFont(regularFont))
-            when (defect.severity) {
-                DefectSeverity.CRITICAL -> severityCell.setBackgroundColor(ColorConstants.RED)
-                DefectSeverity.MAJOR -> severityCell.setBackgroundColor(ColorConstants.ORANGE)
-                DefectSeverity.MINOR -> severityCell.setBackgroundColor(ColorConstants.YELLOW)
-                DefectSeverity.COSMETIC -> severityCell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
-            }
-            defectTable.addCell(severityCell)
-            
-            defectTable.addCell(
-                Cell().add(Paragraph(defect.count.toString()).setFont(regularFont))
-                    .setTextAlignment(TextAlignment.CENTER)
-            )
+            defectTable.addCell(Cell().add(Paragraph(defect.severity.name).setFont(regularFont)))
+            defectTable.addCell(Cell().add(Paragraph(defect.count.toString()).setFont(regularFont)))
             defectTable.addCell(Cell().add(Paragraph(defect.description).setFont(regularFont)))
         }
 
@@ -203,38 +191,21 @@ class PDFReportGenerator @Inject constructor(
             .setFontSize(14f)
             .setMarginTop(20f)
             .setMarginBottom(10f)
-
+            
         document.add(sectionTitle)
 
-        photos.take(10).chunked(2).forEach { photoRow ->
+        photos.chunked(2).forEach { photoRow ->
             val photoTable = Table(UnitValue.createPercentArray(FloatArray(photoRow.size) { 50f }))
                 .useAllAvailableWidth()
                 .setMarginBottom(15f)
 
             photoRow.forEach { photo ->
-                try {
-                    val imageFile = File(photo.filePath)
-                    if (imageFile.exists()) {
-                        val imageData = ImageDataFactory.create(photo.filePath)
-                        val image = Image(imageData)
-                            .setAutoScale(true)
-                            .setMaxWidth(200f)
-                        
-                        val imageCell = Cell()
-                            .add(image)
-                            .add(Paragraph(photo.caption ?: "").setFontSize(8f))
-                            .setPadding(5f)
-                        
-                        photoTable.addCell(imageCell)
-                    }
-                } catch (e: Exception) {
-                    val errorCell = Cell()
-                        .add(Paragraph("[Image not available]").setFontSize(10f))
-                        .setPadding(20f)
-                        .setTextAlignment(TextAlignment.CENTER)
-                    
-                    photoTable.addCell(errorCell)
-                }
+                val imageCell = Cell()
+                    .add(Paragraph("Photo #${photo.sequenceIndex + 1}"))
+                    .add(Paragraph(photo.caption ?: "No caption"))
+                    .setPadding(5f)
+                
+                photoTable.addCell(imageCell)
             }
 
             document.add(photoTable)
@@ -255,24 +226,11 @@ class PDFReportGenerator @Inject constructor(
 
         document.add(sectionTitle)
 
-        val signatureTable = Table(UnitValue.createPercentArray(floatArrayOf(50f, 50f)))
-            .useAllAvailableWidth()
+        val signatureInfo = Paragraph("${inspector.name}\n${inspector.role}\n${inspector.company}")
+            .setFont(regularFont)
+            .setTextAlignment(TextAlignment.LEFT)
 
-        val signatureCell = Cell()
-            .add(Paragraph("[Digital Signature]").setFont(regularFont))
-            .add(Paragraph("\n_________________________").setFont(regularFont))
-            .add(Paragraph("${inspector.name}\n${inspector.role}\n${inspector.company}").setFont(regularFont))
-        
-        signatureTable.addCell(signatureCell)
-
-        val dateCell = Cell()
-            .add(Paragraph("Date: ${getFormattedDate(System.currentTimeMillis())}").setFont(regularFont))
-            .add(Paragraph("\n\n_________________________").setFont(regularFont))
-            .add(Paragraph("Date").setFont(regularFont))
-        
-        signatureTable.addCell(dateCell)
-
-        document.add(signatureTable)
+        document.add(signatureInfo)
     }
 
     private fun addFooter(document: Document, regularFont: PdfFont) {

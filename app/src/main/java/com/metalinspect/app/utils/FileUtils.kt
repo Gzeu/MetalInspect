@@ -1,11 +1,7 @@
 package com.metalinspect.app.utils
 
 import android.content.Context
-import android.net.Uri
-import android.os.Environment
-import androidx.core.content.FileProvider
 import java.io.File
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,15 +11,15 @@ class FileUtils @Inject constructor(
 ) {
     
     fun getInspectionPhotoDirectory(inspectionId: String): File {
-        val photoDir = File(context.getExternalFilesDir(Constants.PHOTO_DIRECTORY), inspectionId)
-        if (!photoDir.exists()) {
-            photoDir.mkdirs()
+        val photosDir = File(context.getExternalFilesDir(Constants.PHOTO_DIRECTORY), inspectionId)
+        if (!photosDir.exists()) {
+            photosDir.mkdirs()
         }
-        return photoDir
+        return photosDir
     }
     
     fun getReportsDirectory(): File {
-        val reportsDir = File(context.getExternalFilesDir(Constants.PDF_DIRECTORY))
+        val reportsDir = File(context.getExternalFilesDir(null), Constants.PDF_DIRECTORY)
         if (!reportsDir.exists()) {
             reportsDir.mkdirs()
         }
@@ -31,7 +27,7 @@ class FileUtils @Inject constructor(
     }
     
     fun getBackupDirectory(): File {
-        val backupDir = File(context.getExternalFilesDir(Constants.BACKUP_DIRECTORY))
+        val backupDir = File(context.getExternalFilesDir(null), Constants.BACKUP_DIRECTORY)
         if (!backupDir.exists()) {
             backupDir.mkdirs()
         }
@@ -39,34 +35,48 @@ class FileUtils @Inject constructor(
     }
     
     fun getSignatureDirectory(): File {
-        val signatureDir = File(context.getExternalFilesDir(Constants.SIGNATURE_DIRECTORY))
-        if (!signatureDir.exists()) {
-            signatureDir.mkdirs()
+        val signaturesDir = File(context.getExternalFilesDir(null), Constants.SIGNATURE_DIRECTORY)
+        if (!signaturesDir.exists()) {
+            signaturesDir.mkdirs()
         }
-        return signatureDir
+        return signaturesDir
     }
     
-    fun createPhotoFile(inspectionId: String): File {
-        val photoDir = getInspectionPhotoDirectory(inspectionId)
+    fun getTempDirectory(): File {
+        val tempDir = File(context.cacheDir, Constants.TEMP_DIRECTORY)
+        if (!tempDir.exists()) {
+            tempDir.mkdirs()
+        }
+        return tempDir
+    }
+    
+    fun createTempImageFile(inspectionId: String): File {
+        val tempDir = getTempDirectory()
         val timestamp = System.currentTimeMillis()
-        val fileName = "IMG_${inspectionId}_$timestamp.jpg"
-        return File(photoDir, fileName)
+        return File(tempDir, "temp_${inspectionId}_${timestamp}${Constants.JPG_EXTENSION}")
     }
     
-    fun getUriForFile(file: File): Uri {
-        return FileProvider.getUriForFile(
-            context,
-            Constants.FILE_PROVIDER_AUTHORITY,
-            file
+    fun getStorageInfo(): StorageInfo {
+        val externalFilesDir = context.getExternalFilesDir(null)
+        val totalSpace = externalFilesDir?.totalSpace ?: 0L
+        val freeSpace = externalFilesDir?.freeSpace ?: 0L
+        val usedSpace = totalSpace - freeSpace
+        
+        return StorageInfo(
+            totalSpaceBytes = totalSpace,
+            freeSpaceBytes = freeSpace,
+            usedSpaceBytes = usedSpace
         )
     }
     
-    fun deleteFile(filePath: String): Boolean {
-        return try {
-            val file = File(filePath)
-            file.delete()
-        } catch (e: Exception) {
-            false
+    fun cleanupTempFiles() {
+        val tempDir = getTempDirectory()
+        val cutoffTime = System.currentTimeMillis() - (24 * 60 * 60 * 1000L) // 24 hours
+        
+        tempDir.listFiles()?.forEach { file ->
+            if (file.lastModified() < cutoffTime) {
+                file.delete()
+            }
         }
     }
     
@@ -78,35 +88,35 @@ class FileUtils @Inject constructor(
         }
     }
     
-    fun isExternalStorageWritable(): Boolean {
-        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
-    }
-    
-    fun isExternalStorageReadable(): Boolean {
-        return Environment.getExternalStorageState() in
-            setOf(Environment.MEDIA_MOUNTED, Environment.MEDIA_MOUNTED_READ_ONLY)
-    }
-    
-    fun cleanupOldFiles(directory: File, maxAgeMs: Long) {
-        if (!directory.exists()) return
-        
-        val currentTime = System.currentTimeMillis()
-        directory.listFiles()?.forEach { file ->
-            if (file.lastModified() + maxAgeMs < currentTime) {
-                file.delete()
-            }
+    fun deleteFile(filePath: String): Boolean {
+        return try {
+            File(filePath).delete()
+        } catch (e: Exception) {
+            false
         }
     }
     
-    fun getDirectorySize(directory: File): Long {
-        if (!directory.exists()) return 0L
-        
-        var size = 0L
-        directory.walkTopDown().forEach { file ->
-            if (file.isFile) {
-                size += file.length()
-            }
+    fun fileExists(filePath: String): Boolean {
+        return try {
+            File(filePath).exists()
+        } catch (e: Exception) {
+            false
         }
-        return size
     }
 }
+
+data class StorageInfo(
+    val totalSpaceBytes: Long,
+    val freeSpaceBytes: Long,
+    val usedSpaceBytes: Long
+) {
+    val totalSpaceMB: Long get() = totalSpaceBytes / (1024 * 1024)
+    val freeSpaceMB: Long get() = freeSpaceBytes / (1024 * 1024)
+    val usedSpaceMB: Long get() = usedSpaceBytes / (1024 * 1024)
+    
+    val freeSpacePercentage: Float get() = if (totalSpaceBytes > 0) {
+        (freeSpaceBytes.toFloat() / totalSpaceBytes.toFloat()) * 100f
+    } else 0f
+}
+
+class PDFGenerationException(message: String, cause: Throwable? = null) : Exception(message, cause)

@@ -19,20 +19,31 @@ class ImageUtils @Inject constructor(
     fun compressAndSaveImage(
         inputPath: String,
         outputPath: String,
-        quality: Int = Constants.DEFAULT_IMAGE_QUALITY
+        quality: Int = Constants.DEFAULT_IMAGE_QUALITY,
+        maxWidth: Int = Constants.MAX_IMAGE_WIDTH,
+        maxHeight: Int = Constants.MAX_IMAGE_HEIGHT
     ): Boolean {
         return try {
-            val bitmap = BitmapFactory.decodeFile(inputPath)
-            val rotatedBitmap = rotateImageIfRequired(bitmap, inputPath)
-            val resizedBitmap = resizeImageIfRequired(rotatedBitmap)
+            val originalBitmap = BitmapFactory.decodeFile(inputPath)
+                ?: return false
             
-            FileOutputStream(outputPath).use { out ->
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, out)
+            // Correct orientation
+            val correctedBitmap = correctImageOrientation(originalBitmap, inputPath)
+            
+            // Resize if necessary
+            val resizedBitmap = resizeBitmap(correctedBitmap, maxWidth, maxHeight)
+            
+            // Save compressed image
+            FileOutputStream(outputPath).use { output ->
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, output)
             }
             
-            bitmap.recycle()
-            rotatedBitmap.recycle()
+            // Clean up
+            if (correctedBitmap != originalBitmap) {
+                correctedBitmap.recycle()
+            }
             resizedBitmap.recycle()
+            originalBitmap.recycle()
             
             true
         } catch (e: Exception) {
@@ -40,65 +51,37 @@ class ImageUtils @Inject constructor(
         }
     }
     
-    private fun rotateImageIfRequired(bitmap: Bitmap, imagePath: String): Bitmap {
+    fun createThumbnail(
+        imagePath: String,
+        thumbnailSize: Int = Constants.THUMBNAIL_SIZE
+    ): Bitmap? {
         return try {
-            val exif = ExifInterface(imagePath)
-            val orientation = exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            )
-            
-            when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-                else -> bitmap
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
             }
-        } catch (e: IOException) {
-            bitmap
+            BitmapFactory.decodeFile(imagePath, options)
+            
+            // Calculate sample size
+            val sampleSize = calculateInSampleSize(options, thumbnailSize, thumbnailSize)
+            
+            options.apply {
+                inJustDecodeBounds = false
+                inSampleSize = sampleSize
+            }
+            
+            val bitmap = BitmapFactory.decodeFile(imagePath, options)
+            resizeBitmap(bitmap, thumbnailSize, thumbnailSize)
+            
+        } catch (e: Exception) {
+            null
         }
-    }
-    
-    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degrees)
-        return Bitmap.createBitmap(
-            bitmap, 0, 0,
-            bitmap.width, bitmap.height,
-            matrix, true
-        )
-    }
-    
-    private fun resizeImageIfRequired(bitmap: Bitmap): Bitmap {
-        val maxWidth = Constants.MAX_IMAGE_WIDTH
-        val maxHeight = Constants.MAX_IMAGE_HEIGHT
-        
-        if (bitmap.width <= maxWidth && bitmap.height <= maxHeight) {
-            return bitmap
-        }
-        
-        val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
-        
-        val (newWidth, newHeight) = if (aspectRatio > 1) {
-            // Landscape
-            maxWidth to (maxWidth / aspectRatio).toInt()
-        } else {
-            // Portrait or square
-            (maxHeight * aspectRatio).toInt() to maxHeight
-        }
-        
-        return Bitmap.createScaledBitmap(
-            bitmap,
-            newWidth,
-            newHeight,
-            true
-        )
     }
     
     fun getImageDimensions(imagePath: String): Pair<Int, Int> {
         return try {
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
             BitmapFactory.decodeFile(imagePath, options)
             Pair(options.outWidth, options.outHeight)
         } catch (e: Exception) {
@@ -106,20 +89,57 @@ class ImageUtils @Inject constructor(
         }
     }
     
-    fun createThumbnail(imagePath: String, maxSize: Int = 200): Bitmap? {
+    private fun correctImageOrientation(bitmap: Bitmap, imagePath: String): Bitmap {
         return try {
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(imagePath, options)
+            val exif = ExifInterface(imagePath)
+            val orientation = exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED
+            )
             
-            val scale = calculateInSampleSize(options, maxSize, maxSize)
-            options.inSampleSize = scale
-            options.inJustDecodeBounds = false
+            val matrix = Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+                else -> return bitmap
+            }
             
-            BitmapFactory.decodeFile(imagePath, options)
-        } catch (e: Exception) {
-            null
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        } catch (e: IOException) {
+            bitmap
         }
+    }
+    
+    private fun resizeBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        
+        if (width <= maxWidth && height <= maxHeight) {
+            return bitmap
+        }
+        
+        val aspectRatio = width.toFloat() / height.toFloat()
+        
+        val (newWidth, newHeight) = if (aspectRatio > 1) {
+            // Landscape
+            if (width > maxWidth) {
+                maxWidth to (maxWidth / aspectRatio).toInt()
+            } else {
+                width to height
+            }
+        } else {
+            // Portrait
+            if (height > maxHeight) {
+                (maxHeight * aspectRatio).toInt() to maxHeight
+            } else {
+                width to height
+            }
+        }
+        
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
     
     private fun calculateInSampleSize(
@@ -135,9 +155,7 @@ class ImageUtils @Inject constructor(
             val halfHeight = height / 2
             val halfWidth = width / 2
             
-            while (halfHeight / inSampleSize >= reqHeight &&
-                halfWidth / inSampleSize >= reqWidth
-            ) {
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
             }
         }
