@@ -1,14 +1,15 @@
 package com.metalinspect.app.utils
 
 import android.content.Context
-import android.content.pm.PackageManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import androidx.lifecycle.LifecycleOwner
+import java.io.File
+import java.util.concurrent.Executor
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,33 +18,7 @@ class CameraUtils @Inject constructor(
     private val context: Context
 ) {
     
-    private var cameraExecutor: ExecutorService? = null
-    
-    fun getCameraExecutor(): ExecutorService {
-        if (cameraExecutor == null) {
-            cameraExecutor = Executors.newSingleThreadExecutor()
-        }
-        return cameraExecutor!!
-    }
-    
-    fun shutdownExecutor() {
-        cameraExecutor?.shutdown()
-        cameraExecutor = null
-    }
-    
-    fun hasCameraHardware(): Boolean {
-        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-    }
-    
-    fun hasBackCamera(): Boolean {
-        val cameraProvider = ProcessCameraProvider.getInstance(context).get()
-        return cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
-    }
-    
-    fun hasFrontCamera(): Boolean {
-        val cameraProvider = ProcessCameraProvider.getInstance(context).get()
-        return cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
-    }
+    private val executor: Executor = ContextCompat.getMainExecutor(context)
     
     fun createImageCapture(): ImageCapture {
         return ImageCapture.Builder()
@@ -58,11 +33,52 @@ class CameraUtils @Inject constructor(
             .build()
     }
     
-    fun getCameraSelector(useFrontCamera: Boolean = false): CameraSelector {
-        return if (useFrontCamera && hasFrontCamera()) {
-            CameraSelector.DEFAULT_FRONT_CAMERA
-        } else {
+    fun createCameraSelector(isBackCamera: Boolean = true): CameraSelector {
+        return if (isBackCamera) {
             CameraSelector.DEFAULT_BACK_CAMERA
+        } else {
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        }
+    }
+    
+    fun capturePhoto(
+        imageCapture: ImageCapture,
+        outputFile: File,
+        onSuccess: (File) -> Unit,
+        onError: (ImageCaptureException) -> Unit
+    ) {
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(outputFile).build()
+        
+        imageCapture.takePicture(
+            outputFileOptions,
+            executor,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    onSuccess(outputFile)
+                }
+                
+                override fun onError(exception: ImageCaptureException) {
+                    onError(exception)
+                }
+            }
+        )
+    }
+    
+    fun isCameraAvailable(): Boolean {
+        return try {
+            val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+            cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    fun hasFrontCamera(): Boolean {
+        return try {
+            val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+            cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
+        } catch (e: Exception) {
+            false
         }
     }
 }

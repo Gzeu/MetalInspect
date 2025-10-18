@@ -2,54 +2,68 @@ package com.metalinspect.app.presentation.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 abstract class BaseViewModel : ViewModel() {
-
+    
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _error = MutableSharedFlow<String>()
-    val error: SharedFlow<String> = _error.asSharedFlow()
-
-    private val _message = MutableSharedFlow<String>()
-    val message: SharedFlow<String> = _message.asSharedFlow()
-
+    
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+    
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message.asStateFlow()
+    
     protected fun setLoading(loading: Boolean) {
         _isLoading.value = loading
     }
-
+    
     protected fun showError(message: String) {
-        viewModelScope.launch {
-            _error.emit(message)
-        }
+        _error.value = message
+        _isLoading.value = false
     }
-
+    
     protected fun showMessage(message: String) {
-        viewModelScope.launch {
-            _message.emit(message)
-        }
+        _message.value = message
     }
-
-    protected suspend fun <T> safeCall(
+    
+    protected fun clearError() {
+        _error.value = null
+    }
+    
+    protected fun clearMessage() {
+        _message.value = null
+    }
+    
+    protected fun <T> safeCall(
         call: suspend () -> T,
-        onSuccess: (suspend (T) -> Unit)? = null,
-        onError: (suspend (Exception) -> Unit)? = null
+        onSuccess: (T) -> Unit,
+        onError: (Exception) -> Unit = { showError(it.message ?: "Unknown error") },
+        showLoading: Boolean = true
     ) {
-        try {
-            setLoading(true)
-            val result = call()
-            onSuccess?.invoke(result)
-        } catch (e: Exception) {
-            onError?.invoke(e) ?: showError(e.message ?: "An unknown error occurred")
-        } finally {
-            setLoading(false)
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            if (exception is Exception) {
+                onError(exception)
+            } else {
+                showError("An unexpected error occurred")
+            }
+        }
+        
+        viewModelScope.launch(exceptionHandler) {
+            try {
+                if (showLoading) setLoading(true)
+                val result = call()
+                onSuccess(result)
+            } catch (e: Exception) {
+                onError(e)
+            } finally {
+                if (showLoading) setLoading(false)
+            }
         }
     }
 }
