@@ -1,69 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Brand Colors -->
+    <!-- Primary colors -->
     <color name="primary_blue">#1976D2</color>
-    <color name="primary_blue_dark">#0D47A1</color>
+    <color name="primary_blue_dark">#1565C0</color>
     <color name="primary_blue_light">#42A5F5</color>
     
-    <!-- Secondary Colors -->
+    <!-- Secondary colors -->
     <color name="accent_orange">#FF9800</color>
     <color name="accent_orange_dark">#F57C00</color>
     <color name="accent_orange_light">#FFB74D</color>
     
-    <!-- Status Colors -->
+    <!-- Status colors -->
     <color name="status_draft">#9E9E9E</color>
-    <color name="status_in_progress">#2196F3</color>
+    <color name="status_in_progress">#FF9800</color>
     <color name="status_completed">#4CAF50</color>
     <color name="status_cancelled">#F44336</color>
     
-    <!-- Severity Colors -->
-    <color name="severity_critical">#D32F2F</color>
-    <color name="severity_major">#FF5722</color>
-    <color name="severity_minor">#FF9800</color>
+    <!-- Severity colors -->
+    <color name="severity_critical">#F44336</color>
+    <color name="severity_major">#FF9800</color>
+    <color name="severity_minor">#FFC107</color>
     <color name="severity_cosmetic">#9E9E9E</color>
     
-    <!-- Background Colors -->
+    <!-- Background colors -->
+    <color name="error_background">#FFEBEE</color>
+    <color name="warning_background">#FFF3E0</color>
+    <color name="success_background">#E8F5E8</color>
+    <color name="info_background">#E3F2FD</color>
+    
+    <!-- Theme colors -->
     <color name="background_light">#FAFAFA</color>
     <color name="background_dark">#121212</color>
     <color name="surface_light">#FFFFFF</color>
     <color name="surface_dark">#1E1E1E</color>
     
-    <!-- Text Colors -->
+    <!-- Text colors -->
     <color name="text_primary_light">#212121</color>
     <color name="text_primary_dark">#FFFFFF</color>
     <color name="text_secondary_light">#757575</color>
-    <color name="text_secondary_dark">#B3FFFFFF</color>
+    <color name="text_secondary_dark">#BDBDBD</color>
     
-    <!-- Error Colors -->
-    <color name="error_red">#B00020</color>
-    <color name="error_background">#FFEBEE</color>
+    <!-- Standard colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00FFFFFF</color>
     
-    <!-- Success Colors -->
-    <color name="success_green">#00C853</color>
-    <color name="success_background">#E8F5E8</color>
-    
-    <!-- Warning Colors -->
-    <color name="warning_yellow">#FFB300</color>
-    <color name="warning_background">#FFF8E1</color>
-    
-    <!-- Neutral Colors -->
-    <color name="gray_50">#FAFAFA</color>
-    <color name="gray_100">#F5F5F5</color>
-    <color name="gray_200">#EEEEEE</color>
-    <color name="gray_300">#E0E0E0</color>
-    <color name="gray_400">#BDBDBD</color>
-    <color name="gray_500">#9E9E9E</color>
-    <color name="gray_600">#757575</color>
-    <color name="gray_700">#616161</color>
-    <color name="gray_800">#424242</color>
-    <color name="gray_900">#212121</color>
-    
-    <!-- Material Design Standard Colors -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="transparent">#00000000</color>
-    
-    <!-- Overlay Colors -->
-    <color name="overlay_light">#80FFFFFF</color>
-    <color name="overlay_dark">#80000000</color>
+    <!-- Semantic colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="error_red">#F44336</color>
+    <color name="warning_yellow">#FF9800</color>
+    <color name="info_blue">#2196F3</color>
 </resources>
