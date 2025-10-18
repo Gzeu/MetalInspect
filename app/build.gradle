@@ -1,0 +1,181 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
+}
+
+android {
+    namespace 'com.metalinspect.app'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.metalinspect.app"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Room schema export
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+        
+        // Enable vector drawable support for API < 21
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            buildConfigField "boolean", "DEBUG_LOGGING", "true"
+            buildConfigField "boolean", "DATABASE_ENCRYPTION", "false"
+        }
+        
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // Production configuration
+            buildConfigField "boolean", "DEBUG_LOGGING", "false"
+            buildConfigField "boolean", "DATABASE_ENCRYPTION", "true"
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+    }
+    
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += [
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        ]
+    }
+    
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+    
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
+    }
+}
+
+dependencies {
+    // Core Android dependencies
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
+    // Java 8+ API desugaring support
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    
+    // Architecture Components
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
+    implementation 'androidx.activity:activity-ktx:1.7.2'
+    
+    // Navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.6.0'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.6.0'
+    
+    // Room Database
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    
+    // SQLCipher for database encryption
+    implementation "net.zetetic:android-database-sqlcipher:4.5.4"
+    implementation "androidx.sqlite:sqlite-ktx:2.3.1"
+    
+    // Dependency Injection - Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    
+    // CameraX
+    implementation "androidx.camera:camera-core:$camerax_version"
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation "androidx.camera:camera-view:$camerax_version"
+    implementation "androidx.camera:camera-extensions:$camerax_version"
+    
+    // PDF Generation
+    implementation 'com.itextpdf:itext7-core:7.2.5'
+    
+    // Image Processing
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    kapt 'com.github.bumptech.glide:compiler:4.15.1'
+    
+    // Date/Time handling
+    implementation 'org.jetbrains.kotlinx:kotlinx-datetime:0.4.0'
+    
+    // CSV/Excel export
+    implementation 'com.opencsv:opencsv:5.7.1'
+    implementation 'org.apache.poi:poi:5.2.3'
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    
+    // Permissions
+    implementation 'pub.devrel:easypermissions:3.0.0'
+    
+    // File operations
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+    
+    // Work Manager for background tasks
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
+    
+    // Testing dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    testImplementation 'com.google.truth:truth:1.1.4'
+    testImplementation 'org.mockito:mockito-core:5.4.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.0.0'
+    testImplementation "androidx.room:room-testing:$room_version"
+    
+    // Instrumented testing
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    androidTestImplementation 'androidx.navigation:navigation-testing:2.6.0'
+    kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt_version"
+    
+    // Debug tools
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.12'
+    debugImplementation 'androidx.fragment:fragment-testing:1.6.0'
+}
