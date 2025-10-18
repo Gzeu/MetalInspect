@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- Background circle -->
+    <path
+        android:pathData="M24,24m-22,0a22,22 0,1 1,44 0a22,22 0,1 1,-44 0"
+        android:fillColor="@color/primary_blue" />
+    
+    <!-- Metal bars -->
+    <path
+        android:pathData="M14,16h20v3H14z"
+        android:fillColor="@color/white" />
+    
+    <path
+        android:pathData="M14,22h20v3H14z"
+        android:fillColor="@color/white" />
+    
+    <path
+        android:pathData="M14,28h20v3H14z"
+        android:fillColor="@color/white" />
+    
+    <!-- Inspection magnifying glass -->
+    <path
+        android:pathData="M18,12m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"
+        android:strokeColor="@color/accent_orange"
+        android:strokeWidth="2"
+        android:fillColor="@android:color/transparent" />
+    
+    <path
+        android:pathData="m22,16 l4,4"
+        android:strokeColor="@color/accent_orange"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+    
+    <!-- Checkmark -->
+    <path
+        android:pathData="m28,32 l3,3 6,-6"
+        android:strokeColor="@color/success_green"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+        
+</vector>
