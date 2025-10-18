@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Weight/Quantity units -->
+    <string-array name="units">
+        <item>kg</item>
+        <item>tons</item>
+        <item>pieces</item>
+    </string-array>
+    
+    <!-- Defect categories -->
+    <string-array name="defect_categories">
+        <item>@string/defect_surface</item>
+        <item>@string/defect_dimensional</item>
+        <item>@string/defect_material</item>
+        <item>@string/defect_packaging</item>
+        <item>@string/defect_documentation</item>
+    </string-array>
+    
+    <!-- Defect severities -->
+    <string-array name="defect_severities">
+        <item>@string/severity_critical</item>
+        <item>@string/severity_major</item>
+        <item>@string/severity_minor</item>
+        <item>@string/severity_cosmetic</item>
+    </string-array>
+    
+    <!-- Inspection statuses -->
+    <string-array name="inspection_statuses">
+        <item>@string/status_draft</item>
+        <item>@string/status_in_progress</item>
+        <item>@string/status_completed</item>
+        <item>@string/status_cancelled</item>
+    </string-array>
+    
+    <!-- Weather conditions presets -->
+    <string-array name="weather_conditions">
+        <item>Clear</item>
+        <item>Partly Cloudy</item>
+        <item>Overcast</item>
+        <item>Light Rain</item>
+        <item>Heavy Rain</item>
+        <item>Foggy</item>
+        <item>Windy</item>
+        <item>Storm</item>
+    </string-array>
+    
+    <!-- Port locations presets -->
+    <string-array name="port_locations">
+        <item>Berth 1</item>
+        <item>Berth 2</item>
+        <item>Berth 3</item>
+        <item>Warehouse A</item>
+        <item>Warehouse B</item>
+        <item>Storage Yard</item>
+        <item>Loading Dock</item>
+        <item>Unloading Area</item>
+    </string-array>
+    
+    <!-- Inspector roles -->
+    <string-array name="inspector_roles">
+        <item>Lead Inspector</item>
+        <item>Quality Inspector</item>
+        <item>Safety Inspector</item>
+        <item>Documentation Inspector</item>
+        <item>Cargo Inspector</item>
+        <item>Survey Inspector</item>
+    </string-array>
+    
+    <!-- Image quality presets -->
+    <string-array name="image_quality_options">
+        <item>High Quality</item>
+        <item>Medium Quality</item>
+        <item>Low Quality</item>
+    </string-array>
+    
+    <string-array name="image_quality_values">
+        <item>95</item>
+        <item>85</item>
+        <item>75</item>
+    </string-array>
+    
+    <!-- Export formats -->
+    <string-array name="export_formats">
+        <item>CSV</item>
+        <item>Excel (XLSX)</item>
+        <item>PDF Report</item>
+    </string-array>
+    
+    <!-- Sort options -->
+    <string-array name="sort_options">
+        <item>Created Date (Newest)</item>
+        <item>Created Date (Oldest)</item>
+        <item>Updated Date</item>
+        <item>Lot Number</item>
+        <item>Status</item>
+        <item>Inspector</item>
+    </string-array>
+</resources>
