@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude sensitive database and signature files -->
+    <exclude domain="database" />
+    <exclude domain="file" path="signatures/" />
+    <exclude domain="sharedpref" path="inspector_signatures" />
+    
+    <!-- Include app configuration -->
+    <include domain="sharedpref" path="app_preferences" />
+    <include domain="file" path="reports/" />
+</full-backup-content>
