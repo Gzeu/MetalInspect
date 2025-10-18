@@ -1,27 +1,57 @@
 package com.metalinspect.app.data.database.converters
 
 import androidx.room.TypeConverter
-import java.util.Date
+import com.metalinspect.app.data.database.entities.*
 
 class DateConverters {
     
     @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
-        return value?.let { Date(it) }
+    fun fromInspectionStatus(status: InspectionStatus): String {
+        return status.name
     }
     
     @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
-        return date?.time
+    fun toInspectionStatus(status: String): InspectionStatus {
+        return InspectionStatus.valueOf(status)
     }
     
     @TypeConverter
-    fun fromStringList(value: List<String>?): String? {
-        return value?.joinToString(",")
+    fun fromDefectCategory(category: DefectCategory): String {
+        return category.name
     }
     
     @TypeConverter
-    fun toStringList(value: String?): List<String>? {
-        return value?.split(",")?.map { it.trim() }
+    fun toDefectCategory(category: String): DefectCategory {
+        return DefectCategory.valueOf(category)
+    }
+    
+    @TypeConverter
+    fun fromDefectSeverity(severity: DefectSeverity): String {
+        return severity.name
+    }
+    
+    @TypeConverter
+    fun toDefectSeverity(severity: String): DefectSeverity {
+        return DefectSeverity.valueOf(severity)
+    }
+    
+    @TypeConverter
+    fun fromChecklistCategory(category: ChecklistCategory): String {
+        return category.name
+    }
+    
+    @TypeConverter
+    fun toChecklistCategory(category: String): ChecklistCategory {
+        return ChecklistCategory.valueOf(category)
+    }
+    
+    @TypeConverter
+    fun fromChecklistInputType(inputType: ChecklistInputType): String {
+        return inputType.name
+    }
+    
+    @TypeConverter
+    fun toChecklistInputType(inputType: String): ChecklistInputType {
+        return ChecklistInputType.valueOf(inputType)
     }
 }
