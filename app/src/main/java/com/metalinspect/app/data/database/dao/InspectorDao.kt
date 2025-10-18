@@ -1,7 +1,6 @@
 package com.metalinspect.app.data.database.dao
 
 import androidx.room.*
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 import com.metalinspect.app.data.database.entities.Inspector
 
@@ -26,6 +25,9 @@ interface InspectorDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertInspector(inspector: Inspector)
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertInspectors(inspectors: List<Inspector>)
+    
     @Update
     suspend fun updateInspector(inspector: Inspector)
     
@@ -41,6 +43,6 @@ interface InspectorDao {
     @Query("SELECT COUNT(*) FROM inspectors")
     suspend fun getInspectorCount(): Int
     
-    @Query("DELETE FROM inspectors WHERE id = :id")
-    suspend fun deleteInspectorById(id: String)
+    @Query("SELECT COUNT(*) FROM inspectors WHERE is_active = 1")
+    suspend fun getActiveInspectorCount(): Int
 }

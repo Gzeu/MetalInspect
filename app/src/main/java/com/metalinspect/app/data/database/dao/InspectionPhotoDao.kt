@@ -19,14 +19,14 @@ interface InspectionPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPhoto(photo: InspectionPhoto)
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPhotos(photos: List<InspectionPhoto>)
+    
     @Update
     suspend fun updatePhoto(photo: InspectionPhoto)
     
     @Delete
     suspend fun deletePhoto(photo: InspectionPhoto)
-    
-    @Query("DELETE FROM inspection_photos WHERE id = :id")
-    suspend fun deletePhotoById(id: String)
     
     @Query("DELETE FROM inspection_photos WHERE inspection_id = :inspectionId")
     suspend fun deletePhotosByInspection(inspectionId: String)
@@ -37,13 +37,9 @@ interface InspectionPhotoDao {
     @Query("SELECT COUNT(*) FROM inspection_photos WHERE inspection_id = :inspectionId")
     suspend fun getPhotoCountByInspection(inspectionId: String): Int
     
-    @Query("SELECT MAX(sequence_index) FROM inspection_photos WHERE inspection_id = :inspectionId")
-    suspend fun getMaxSequenceIndex(inspectionId: String): Int?
-    
-    @Query("""
-        UPDATE inspection_photos 
-        SET sequence_index = sequence_index - 1 
-        WHERE inspection_id = :inspectionId AND sequence_index > :deletedIndex
-    """)
+    @Query("UPDATE inspection_photos SET sequence_index = sequence_index - 1 WHERE inspection_id = :inspectionId AND sequence_index > :deletedIndex")
     suspend fun reorderPhotosAfterDeletion(inspectionId: String, deletedIndex: Int)
+    
+    @Query("SELECT * FROM inspection_photos WHERE inspection_id = :inspectionId ORDER BY created_at DESC LIMIT 1")
+    suspend fun getLatestPhotoByInspection(inspectionId: String): InspectionPhoto?
 }
