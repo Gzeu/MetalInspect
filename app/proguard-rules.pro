@@ -14,44 +14,44 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Room database
--keep class * extends androidx.room.RoomDatabase
--keep @androidx.room.Entity class *
--keep @androidx.room.Dao class *
--keepclassmembers class * {
-    @androidx.room.* <methods>;
-}
+# Keep data classes for Room entities
+-keep class com.metalinspect.app.data.database.entities.** { *; }
+-keep class com.metalinspect.app.domain.models.** { *; }
 
-# Hilt
+# Keep Room DAO methods
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Database class *
+-keep @androidx.room.Dao class *
+-keep @androidx.room.Entity class *
+
+# Hilt rules
 -keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }
--keep class * extends dagger.hilt.android.lifecycle.HiltViewModel {
-    <init>(...);
+-keep class * extends dagger.hilt.android.HiltAndroidApp
+-keepclasseswithmembers class * {
+    @dagger.hilt.android.AndroidEntryPoint <methods>;
 }
--keep @dagger.hilt.android.lifecycle.HiltViewModel class * { *; }
 
-# Gson/JSON (for Room converters)
--keepattributes Signature
--keepattributes *Annotation*
--dontwarn sun.misc.**
--keep class com.google.gson.** { *; }
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
+# CameraX
+-keep class androidx.camera.** { *; }
 
 # iTextPDF
 -keep class com.itextpdf.** { *; }
 -dontwarn com.itextpdf.**
 
-# CameraX
--keep class androidx.camera.** { *; }
--dontwarn androidx.camera.**
+# OpenCSV
+-keep class com.opencsv.** { *; }
+-dontwarn com.opencsv.**
+
+# Apache POI
+-keep class org.apache.poi.** { *; }
+-dontwarn org.apache.poi.**
 
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
@@ -66,52 +66,41 @@
   *** rewind();
 }
 
-# Keep data classes for Room entities
--keep @kotlinx.parcelize.Parcelize class * { *; }
--keep class com.metalinspect.app.data.database.entities.** { *; }
+# Retrofit and OkHttp (if added later)
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
 
-# Keep enum classes
+# Kotlin Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+
+# Keep generic signatures for reflection
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Keep enums
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
 
-# SQLCipher
--keep class net.sqlcipher.** { *; }
--dontwarn net.sqlcipher.**
-
-# Apache POI (Excel export)
--keep class org.apache.poi.** { *; }
--dontwarn org.apache.poi.**
--dontwarn org.apache.xmlbeans.**
--dontwarn org.apache.commons.**
-
-# OpenCSV
--keep class com.opencsv.** { *; }
--dontwarn com.opencsv.**
-
-# Kotlin Coroutines
--keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
--keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepclassmembers class kotlinx.coroutines.** {
-    volatile <fields>;
-}
--keepclassmembernames class kotlinx.** {
-    volatile <fields>;
+# Keep Parcelable implementations
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
 }
 
-# Keep application class
--keep class * extends android.app.Application
-
-# Keep custom exceptions
--keep public class * extends java.lang.Exception
-
-# Remove logging in release
--assumenosideeffects class android.util.Log {
-    public static boolean isLoggable(java.lang.String, int);
-    public static int v(...);
-    public static int i(...);
-    public static int w(...);
-    public static int d(...);
-    public static int e(...);
+# Keep serialization classes
+-keep class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
 }
