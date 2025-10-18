@@ -10,31 +10,31 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
+    
     @Binds
     @Singleton
     abstract fun bindInspectionRepository(
         inspectionRepositoryImpl: InspectionRepositoryImpl
     ): InspectionRepository
-
+    
     @Binds
     @Singleton
     abstract fun bindInspectorRepository(
         inspectorRepositoryImpl: InspectorRepositoryImpl
     ): InspectorRepository
-
+    
     @Binds
     @Singleton
     abstract fun bindProductRepository(
         productRepositoryImpl: ProductRepositoryImpl
     ): ProductRepository
-
+    
     @Binds
     @Singleton
     abstract fun bindDefectRepository(
         defectRepositoryImpl: DefectRepositoryImpl
     ): DefectRepository
-
+    
     @Binds
     @Singleton
     abstract fun bindPhotoRepository(

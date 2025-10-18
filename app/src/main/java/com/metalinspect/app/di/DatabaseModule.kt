@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
+    
     @Provides
     @Singleton
     fun provideInspectionDatabase(
@@ -26,32 +26,32 @@ object DatabaseModule {
             useEncryption = BuildConfig.DATABASE_ENCRYPTION
         )
     }
-
+    
     @Provides
     fun provideInspectorDao(database: InspectionDatabase): InspectorDao {
         return database.inspectorDao()
     }
-
+    
     @Provides
     fun provideInspectionDao(database: InspectionDatabase): InspectionDao {
         return database.inspectionDao()
     }
-
+    
     @Provides
     fun provideProductTypeDao(database: InspectionDatabase): ProductTypeDao {
         return database.productTypeDao()
     }
-
+    
     @Provides
     fun provideDefectRecordDao(database: InspectionDatabase): DefectRecordDao {
         return database.defectRecordDao()
     }
-
+    
     @Provides
     fun provideInspectionPhotoDao(database: InspectionDatabase): InspectionPhotoDao {
         return database.inspectionPhotoDao()
     }
-
+    
     @Provides
     fun provideChecklistDao(database: InspectionDatabase): ChecklistDao {
         return database.checklistDao()
