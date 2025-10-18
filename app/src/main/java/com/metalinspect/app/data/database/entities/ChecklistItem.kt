@@ -56,3 +56,31 @@ enum class ChecklistInputType {
     MULTI_SELECT,
     DATE
 }
+
+@Entity(
+    tableName = "checklist_responses",
+    indices = [
+        Index(value = ["inspection_id"]),
+        Index(value = ["checklist_item_id"])
+    ]
+)
+@Parcelize
+data class ChecklistResponse(
+    @PrimaryKey
+    val id: String,
+    
+    @ColumnInfo(name = "inspection_id")
+    val inspectionId: String,
+    
+    @ColumnInfo(name = "checklist_item_id")
+    val checklistItemId: String,
+    
+    @ColumnInfo(name = "response_value")
+    val responseValue: String,
+    
+    @ColumnInfo(name = "response_notes")
+    val responseNotes: String? = null,
+    
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long = System.currentTimeMillis()
+) : Parcelable
