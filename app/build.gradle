@@ -5,6 +5,79 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'jacoco'
+}
+
+// JaCoCo coverage configuration
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    
+    def fileFilter = [
+        '**/R.class',
+        '**/R$*.class',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Test*.*',
+        'android/**/*.*',
+        '**/*_Hilt*',
+        '**/*_Factory*',
+        '**/*_MembersInjector*',
+        '**/*Module*',
+        '**/*Component*'
+    ]
+    
+    def mainSrc = "${project.projectDir}/src/main/java"
+    def debugTree = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def kotlinDebugTree = fileTree(dir: "${buildDir}/tmp/kotlin-classes/debug", excludes: fileFilter)
+    
+    sourceDirectories.from = files([mainSrc])
+    classDirectories.from = files([debugTree, kotlinDebugTree])
+    executionData.from = fileTree(dir: buildDir, includes: [
+        'jacoco/testDebugUnitTest.exec',
+        'outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec'
+    ])
+}
+
+tasks.register('jacocoTestCoverageVerification', JacocoCoverageVerification) {
+    dependsOn 'jacocoTestReport'
+    
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70 // 70% minimum overall coverage
+            }
+        }
+        
+        rule {
+            element = 'CLASS'
+            excludes = [
+                '*.BuildConfig',
+                '*.R',
+                '*.R$*',
+                '*.*Test*',
+                '*.Hilt_*',
+                '*.*_Factory*',
+                '*.*Module*',
+                '*.*Component*'
+            ]
+            
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60 // 60% minimum class coverage
+            }
+        }
+    }
 }
 
 android {
@@ -20,6 +93,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         
+        // Custom test runner arguments for coverage
+        testInstrumentationRunnerArguments = [
+            'coverage': 'true',
+            'coverageFile': '/sdcard/Android/data/com.metalinspect.app/files/coverage.exec'
+        ]
+        
         // Room schema export
         kapt {
             arguments {
@@ -31,12 +110,27 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        
+        buildConfigField "boolean", "DEBUG_LOGGING", "true"
+        buildConfigField "boolean", "DATABASE_ENCRYPTION", "false"
+    }
+    
+    signingConfigs {
+        release {
+            if (project.hasProperty('KEYSTORE_FILE')) {
+                storeFile file(project.property('KEYSTORE_FILE'))
+                storePassword project.property('KEYSTORE_PASSWORD')
+                keyAlias project.property('KEY_ALIAS')
+                keyPassword project.property('KEY_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         debug {
             debuggable true
             minifyEnabled false
+            testCoverageEnabled true
             buildConfigField "boolean", "DEBUG_LOGGING", "true"
             buildConfigField "boolean", "DATABASE_ENCRYPTION", "false"
         }
@@ -46,6 +140,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
             
             // Production configuration
             buildConfigField "boolean", "DEBUG_LOGGING", "false"
@@ -75,7 +170,10 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            returnDefaultValues = true
         }
+        
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
     
     packagingOptions {
@@ -161,24 +259,34 @@ dependencies {
     // Logging
     implementation 'com.jakewharton.timber:timber:5.0.1'
     
-    // Testing dependencies
+    // Testing dependencies - Unit Tests
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
-    testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'com.google.truth:truth:1.1.4'
-    testImplementation 'org.mockito:mockito-core:5.4.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.0.0'
-    testImplementation "androidx.room:room-testing:$room_version"
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'androidx.room:room-testing:2.5.0'
+    testImplementation 'org.robolectric:robolectric:4.10.3'
+    testImplementation 'app.cash.turbine:turbine:1.0.0'
     
-    // Instrumented testing
+    // Testing dependencies - Instrumented Tests
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.room:room-testing:2.5.0'
+    androidTestImplementation 'com.google.truth:truth:1.1.4'
+    androidTestImplementation 'org.mockito.kotlin:mockito-kotlin:5.0.0'
+    androidTestImplementation 'org.mockito:mockito-android:5.2.0'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
-    androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
     kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt_version"
+    
+    // Test Orchestrator
+    androidTestUtil 'androidx.test:orchestrator:1.4.2'
     
     // Debug tools
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.12'
