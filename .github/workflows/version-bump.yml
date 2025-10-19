@@ -1,0 +1,162 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create pre-release version'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+        
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Get current version
+      id: current_version
+      run: |
+        CURRENT_VERSION=$(grep 'versionName' app/build.gradle | head -1 | sed 's/.*"\(.*\)".*/\1/')
+        CURRENT_CODE=$(grep 'versionCode' app/build.gradle | head -1 | sed 's/.*versionCode \([0-9]*\).*/\1/')
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "current_code=$CURRENT_CODE" >> $GITHUB_OUTPUT
+        
+    - name: Calculate new version
+      id: new_version
+      run: |
+        CURRENT="${{ steps.current_version.outputs.current_version }}"
+        VERSION_TYPE="${{ github.event.inputs.version_type }}"
+        PRERELEASE="${{ github.event.inputs.prerelease }}"
+        
+        # Parse current version (e.g., "1.2.3" -> major=1, minor=2, patch=3)
+        IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
+        MAJOR=${VERSION_PARTS[0]}
+        MINOR=${VERSION_PARTS[1]}
+        PATCH=${VERSION_PARTS[2]}
+        
+        # Bump version based on type
+        case $VERSION_TYPE in
+          "major")
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            ;;
+          "minor")
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            ;;
+          "patch")
+            PATCH=$((PATCH + 1))
+            ;;
+        esac
+        
+        NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+        
+        # Add prerelease suffix if requested
+        if [ "$PRERELEASE" = "true" ]; then
+          NEW_VERSION="$NEW_VERSION-rc.1"
+        fi
+        
+        # Calculate new version code (remove dots and pad)
+        NEW_CODE=$(echo "$NEW_VERSION" | sed 's/[^0-9]//g' | sed 's/^0*//')
+        if [ ${#NEW_CODE} -lt 3 ]; then
+          NEW_CODE="${NEW_CODE}0"
+        fi
+        
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "new_code=$NEW_CODE" >> $GITHUB_OUTPUT
+        echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+        
+    - name: Update version in build.gradle
+      run: |
+        sed -i "s/versionName .*/versionName \"${{ steps.new_version.outputs.new_version }}\"/g" app/build.gradle
+        sed -i "s/versionCode .*/versionCode ${{ steps.new_version.outputs.new_code }}/g" app/build.gradle
+        
+    - name: Update CHANGELOG.md
+      run: |
+        NEW_VERSION="${{ steps.new_version.outputs.new_version }}"
+        DATE=$(date +"%Y-%m-%d")
+        
+        # Create new changelog entry
+        sed -i "/## \[Unreleased\]/a\\\n## [$NEW_VERSION] - $DATE\\\n\\\n### Added\\\n- Version bump to $NEW_VERSION\\\n" CHANGELOG.md
+        
+    - name: Commit version bump
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add app/build.gradle CHANGELOG.md
+        git commit -m "chore: bump version to ${{ steps.new_version.outputs.new_version }}
+        
+        - Update versionName to ${{ steps.new_version.outputs.new_version }}
+        - Update versionCode to ${{ steps.new_version.outputs.new_code }}
+        - Add changelog entry for version ${{ steps.new_version.outputs.new_version }}
+        
+        Version bump: ${{ steps.current_version.outputs.current_version }} → ${{ steps.new_version.outputs.new_version }}
+        Type: ${{ steps.new_version.outputs.version_type }}"
+        
+    - name: Push changes
+      run: git push origin main
+      
+    - name: Create and push tag
+      run: |
+        TAG_NAME="v${{ steps.new_version.outputs.new_version }}"
+        git tag -a "$TAG_NAME" -m "Release ${{ steps.new_version.outputs.new_version }}
+        
+        Version: ${{ steps.new_version.outputs.new_version }}
+        Build: ${{ steps.new_version.outputs.new_code }}
+        Type: ${{ steps.new_version.outputs.version_type }} release
+        
+        This tag triggers the automated release workflow."
+        git push origin "$TAG_NAME"
+        
+    - name: Create GitHub Release (if not prerelease)
+      if: github.event.inputs.prerelease != 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.new_version.outputs.new_version }}
+        name: MetalInspect ${{ steps.new_version.outputs.new_version }}
+        body: |
+          ## 🚀 MetalInspect ${{ steps.new_version.outputs.new_version }}
+          
+          This is an automated ${{ steps.new_version.outputs.version_type }} release.
+          
+          ### 📝 Changes
+          - Version bump from ${{ steps.current_version.outputs.current_version }} to ${{ steps.new_version.outputs.new_version }}
+          
+          ### ⬇️ Downloads
+          Release artifacts will be available shortly after the build completes.
+          
+          ### 📱 Installation
+          ```bash
+          # Download and install APK
+          adb install app-release.apk
+          ```
+          
+          **Full changelog**: See CHANGELOG.md for detailed changes.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
