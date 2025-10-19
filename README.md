@@ -1,4 +1,4 @@
-# MetalInspect – MVP 100% Complet (Build & Run Ready)
+# MetalInspect – MVP 100% Complete (Build & Run Ready)
 
 [![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://android.com)
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.10-blue.svg)](https://kotlinlang.org)
@@ -7,19 +7,19 @@
 [![MVP](https://img.shields.io/badge/MVP-Complete-success.svg)]()
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
-## 🚀 Rezumat (Inverted Pyramid)
-- MVP este COMPLET și funcțional: 110+ fișiere, build fără erori, rulare pe Android 5.0+.
-- Arhitectură Clean (data/domain/presentation) cu Room, Hilt, CameraX, iText7, SQLCipher.
-- 100% offline: captură foto, defecte, rapoarte PDF, export CSV, backup/restore local.
-- Documentație extinsă: setup, comenzi, limitări cunoscute, roadmap, checklist QA.
+## 🚀 Overview
+- MVP is complete and fully functional: 110+ files, clean builds, Android 5.0+ support
+- Clean Architecture (data/domain/presentation) with Room, Hilt, CameraX, iText7, SQLCipher
+- 100% offline: photo capture, defects, PDF reports, CSV export, local backup/restore
+- Extensive documentation: setup, commands, limitations, roadmap, QA checklist
 
-## 📦 Ce primești
-- Inspecții cu lifecycle complet (Draft → In Progress → Completed)
-- Catalog produse, profil inspector cu semnătură, captură foto, management defecte
-- Rapoarte PDF cu imagini + sumare, export CSV, backup ZIP
-- UI Material 3, theming Day/Night, navigație sigură (Safe Args)
+## 📦 What’s Included
+- Full inspection lifecycle (Draft → In Progress → Completed)
+- Product catalog, inspector profile with signature, photo capture, defect management
+- PDF reports with embedded images and summaries, CSV export, ZIP backups
+- Material 3 UI, Day/Night theming, Safe Args navigation
 
-## 🏗️ Arhitectură & Structură
+## 🏗️ Architecture & Structure
 ```
 app/
  ├─ data/          # Room, Repositories, PDF, Export/Backup
@@ -30,90 +30,93 @@ app/
  └─ res/           # Layouts, Drawables, Navigation, Values, XML
 ```
 
-## ✅ Status Verificare Critică (Build & Run)
-- XML: res/xml/file_provider_paths.xml, data_extraction_rules.xml, backup_rules.xml – PREZENTE
-- Values: styles.xml (+night), colors.xml (+night), dimens.xml, arrays.xml, strings.xml – PREZENTE
-- Database: entities/*.kt, dao/*.kt, converters, InspectionDatabase.kt, schemas/1.json – PREZENTE
-- DI: DatabaseModule, RepositoryModule, UseCaseModule, ApplicationModule – PREZENTE
-- Presentation: MetalInspectApplication, MainActivity, fragmente cheie – PREZENTE
-- Layouts: create/list/detail/camera/gallery/checklist/inspector/settings + dialogs – PREZENTE
-- Navigation: navigation/nav_graph.xml, menu/bottom_navigation.xml – PREZENTE
-- PDF: data/pdf/PDFReportGenerator.kt – PREZENT
+## ✅ Build & Run Critical Files – VERIFIED
+- XML: res/xml/file_provider_paths.xml, data_extraction_rules.xml, backup_rules.xml – PRESENT
+- Values: styles.xml (+night), colors.xml (+night), dimens.xml, arrays.xml, strings.xml – PRESENT
+- Database: entities/*.kt, dao/*.kt, converters, InspectionDatabase.kt, schemas/1.json – PRESENT
+- DI: DatabaseModule, RepositoryModule, UseCaseModule, ApplicationModule – PRESENT
+- Presentation: MetalInspectApplication, MainActivity, key fragments – PRESENT
+- Layouts: create/list/detail/camera/gallery/checklist/inspector/settings + dialogs – PRESENT
+- Navigation: navigation/nav_graph.xml, menu/bottom_navigation.xml – PRESENT
+- PDF: data/pdf/PDFReportGenerator.kt – PRESENT
 
-## 🔧 Instalare rapidă
+## 🔧 Quick Start
 ```bash
 git clone https://github.com/Gzeu/MetalInspect.git
 cd MetalInspect
 ./gradlew assembleDebug
 ```
 
-## ▶️ Rulare
-- Android Studio > Run ‘app’ (dispozitiv API 21+)
-- Sau instalați APK-ul din Releases
+## ▶️ Run
+- Android Studio > Run ‘app’ (device API 21+)
+- Or install APK from Releases
 
-## 🔐 Securitate
-- SQLCipher (opțional) pentru baza de date (BuildConfig.DATABASE_ENCRYPTION)
-- FileProvider pentru partajare sigură PDF/imagini
-- Permisiuni runtime (Camera, Media/Storage, opțional Location)
+## 🔐 Security
+- SQLCipher (optional) for database (BuildConfig.DATABASE_ENCRYPTION)
+- FileProvider for safe PDF/image sharing
+- Runtime permissions (Camera, Media/Storage, optional Location)
 
-## 📈 Performanță (Ținte atinse)
+## 📈 Performance Targets (Met)
 - Cold start ≤ 2s, Form save ≤ 200ms, Gallery ≤ 1s, Capture ≤ 3s, PDF ≤ 5s
 
-## 🧪 Testare
+## 🧪 Testing & Coverage
+- Unit tests and instrumented tests across layers
+- JaCoCo coverage thresholds: 70% overall, 60% per-class
+- CI pipeline enforces coverage and quality gates
 ```bash
-./gradlew test                  # Unit
-./gradlew connectedAndroidTest  # Instrumented
+./gradlew test                   # Unit tests
+./gradlew connectedAndroidTest   # Instrumented tests
 ```
 
-## 🧭 Fluxuri principale
-1) Creare inspecție → validare → draft/începe
-2) Captură foto → compresie → galerie → legare la defecte
-3) Adăugare defecte → categorii → severitate → descriere
-4) Checklist (opțional) → răspunsuri
-5) Generare raport → PDF → share/export
+## 🧭 Core Workflows
+1) Create inspection → validate → start/in-progress
+2) Capture photo → compress → gallery → link to defects
+3) Add defects → categories → severity → description
+4) Checklist (optional) → responses
+5) Generate report → PDF → share/export
 
 ## 📄 Export/Backup
-- Export CSV (inspecții, defecte, fotografii)
-- Backup ZIP (bază de date, fotografii, semnături), restore
+- CSV exports (inspections, defects, photos)
+- ZIP backups (database, photos, signatures) with restore
 
-## 📚 Limitări MVP cunoscute
-- Unele ecrane au logică placeholder minimală (ex: dialog adăugare defect – urmează extindere workflow)
-- Room schema 1.json este generat pentru v1; migrațiile viitoare trebuie menținute
+## 🧰 Developer Onboarding
+- One-command setup and helpers
+```bash
+chmod +x scripts/setup.sh && ./scripts/setup.sh
+./scripts/run-unit.sh --coverage
+./scripts/run-instrumented.sh
+./scripts/assemble-release.sh --aab
+```
 
-## 🗺️ Roadmap (Faza următoare)
-- Templates raport & brand kit
-- Checklist avansat (template-uri, scoruri)
-- Căutare/filtrare avansată, sortare multi-criteriu
+## ⚙️ CI/CD & Releases
+- CI: Multi-API tests, lint, security scan, coverage reporting
+- Release: Tag-driven signed APK/AAB builds, GitHub Releases with artifacts
+- Version bump workflow: patch/minor/major with changelog updates
+See: docs/CI_CD.md
+
+## 📚 Documentation
+- docs/BUILD.md – Build & release guide
+- docs/ARCHITECTURE.md – Layers, flow, decisions
+- docs/SECURITY.md – SQLCipher, permissions, FileProvider, logging
+- docs/TESTING.md – Strategy, examples, CI tips
+- docs/DEPLOYMENT.md – Production deployment
+- docs/API.md – Internal interfaces & models
+- CHANGELOG.md – Version history
+- CONTRIBUTING.md – Contribution guide
+
+## 📚 Known MVP Limitations
+- Some screens have minimal placeholder logic (e.g., add defect dialog – next iteration)
+- Room schema 1.json is generated for v1; future migrations must be maintained
+
+## 🗺️ Roadmap (Next)
+- Report templates & brand kit
+- Advanced checklist (templates, scoring)
+- Advanced search/filtering, multi-criteria sort
 - Multi-language (RO/EN)
 
-## 🤝 Contribuții
+## 🤝 Contributing
 1) Fork • 2) Branch • 3) Commit • 4) PR
-- Stil: Kotlin + Clean Architecture, MVVM, Material 3
+- Style: Kotlin + Clean Architecture, MVVM, Material 3
 
-## 👤 Autor
-- George Pricop (București, RO) – GitHub: @Gzeu
-
----
-
-# Docs adiționale
-
-## docs/BUILD.md
-- Setup JDK & Android SDK
-- Comenzi Gradle (debug/release)
-- Semnare APK/App Bundle
-- ProGuard/R8, shrinkResources
-
-## docs/ARCHITECTURE.md
-- Diagrama layer-elor
-- Contracte & dependențe
-- Fluxuri de date (DB ↔ Repository ↔ UseCase ↔ VM ↔ UI)
-
-## docs/SECURITY.md
-- SQLCipher set-up
-- Permisiuni și rationale
-- Data extraction & backup policies
-
-## docs/TESTING.md
-- Structură teste unit/instrumented
-- Teste pentru DAOs, UseCases, ViewModels
-- Ghid rulare CI
+## 👤 Author
+- George Pricop (Bucharest, RO) – GitHub: @Gzeu
