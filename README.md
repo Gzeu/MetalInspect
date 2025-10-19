@@ -120,3 +120,6 @@ See: docs/CI_CD.md
 
 ## 👤 Author
 - George Pricop (Bucharest, RO) – GitHub: @Gzeu
+
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
