@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MetalInspect</string>
-    <string name="label_inspections">Inspections</string>
-    <string name="label_add_inspection">Add Inspection</string>
-    <string name="label_export_pdf">Export PDF</string>
-    <string name="label_share">Share</string>
+    <string name="content_desc_export_pdf">Export PDF</string>
 </resources>

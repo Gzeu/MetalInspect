@@ -19,7 +19,11 @@
     <fragment
         android:id="@+id/inspectionDetailFragment"
         android:name="com.metalinspect.app.presentation.ui.InspectionDetailFragment"
-        android:label="Inspection Detail"/>
+        android:label="Inspection Detail">
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/inspectionEditorFragment"

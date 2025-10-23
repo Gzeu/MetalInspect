@@ -8,4 +8,7 @@
     <style name="Widget.MetalInspect.StatusBadge" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!-- Accessibility helpers -->
+    <item name="android:windowContentTransitions">true</item>
 </resources>
