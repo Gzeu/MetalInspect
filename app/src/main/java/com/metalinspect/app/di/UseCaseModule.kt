@@ -1,64 +1,55 @@
 package com.metalinspect.app.di
 
-import com.metalinspect.app.domain.usecases.inspection.*
-import com.metalinspect.app.domain.usecases.defects.*
-import com.metalinspect.app.domain.usecases.photos.*
-import com.metalinspect.app.domain.usecases.reports.*
-import dagger.Binds
+import com.metalinspect.app.domain.repository.InspectionRepository
+import com.metalinspect.app.domain.usecase.AddDefectUseCase
+import com.metalinspect.app.domain.usecase.CreateInspectionUseCase
+import com.metalinspect.app.domain.usecase.DeleteInspectionUseCase
+import com.metalinspect.app.domain.usecase.GetInspectionsUseCase
+import com.metalinspect.app.domain.usecase.UpdateInspectionUseCase
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
+/**
+ * Hilt module providing use case instances
+ */
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class UseCaseModule {
+object UseCaseModule {
     
-    // Inspection Use Cases
-    @Binds
-    abstract fun bindCreateInspectionUseCase(
-        createInspectionUseCaseImpl: CreateInspectionUseCaseImpl
-    ): CreateInspectionUseCase
+    @Provides
+    fun provideCreateInspectionUseCase(
+        repository: InspectionRepository
+    ): CreateInspectionUseCase {
+        return CreateInspectionUseCase(repository)
+    }
     
-    @Binds
-    abstract fun bindGetInspectionUseCase(
-        getInspectionUseCaseImpl: GetInspectionUseCaseImpl
-    ): GetInspectionUseCase
+    @Provides
+    fun provideAddDefectUseCase(
+        repository: InspectionRepository
+    ): AddDefectUseCase {
+        return AddDefectUseCase(repository)
+    }
     
-    @Binds
-    abstract fun bindUpdateInspectionUseCase(
-        updateInspectionUseCaseImpl: UpdateInspectionUseCaseImpl
-    ): UpdateInspectionUseCase
+    @Provides
+    fun provideGetInspectionsUseCase(
+        repository: InspectionRepository
+    ): GetInspectionsUseCase {
+        return GetInspectionsUseCase(repository)
+    }
     
-    @Binds
-    abstract fun bindDeleteInspectionUseCase(
-        deleteInspectionUseCaseImpl: DeleteInspectionUseCaseImpl
-    ): DeleteInspectionUseCase
+    @Provides
+    fun provideUpdateInspectionUseCase(
+        repository: InspectionRepository
+    ): UpdateInspectionUseCase {
+        return UpdateInspectionUseCase(repository)
+    }
     
-    // Defect Use Cases
-    @Binds
-    abstract fun bindAddDefectUseCase(
-        addDefectUseCaseImpl: AddDefectUseCaseImpl
-    ): AddDefectUseCase
-    
-    @Binds
-    abstract fun bindGetDefectCategoriesUseCase(
-        getDefectCategoriesUseCaseImpl: GetDefectCategoriesUseCaseImpl
-    ): GetDefectCategoriesUseCase
-    
-    // Photo Use Cases
-    @Binds
-    abstract fun bindCapturePhotoUseCase(
-        capturePhotoUseCaseImpl: CapturePhotoUseCaseImpl
-    ): CapturePhotoUseCase
-    
-    @Binds
-    abstract fun bindManagePhotosUseCase(
-        managePhotosUseCaseImpl: ManagePhotosUseCaseImpl
-    ): ManagePhotosUseCase
-    
-    // Report Use Cases
-    @Binds
-    abstract fun bindGenerateReportUseCase(
-        generateReportUseCaseImpl: GenerateReportUseCaseImpl
-    ): GenerateReportUseCase
+    @Provides
+    fun provideDeleteInspectionUseCase(
+        repository: InspectionRepository
+    ): DeleteInspectionUseCase {
+        return DeleteInspectionUseCase(repository)
+    }
 }
