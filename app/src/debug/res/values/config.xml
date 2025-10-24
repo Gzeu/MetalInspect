@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Debug configuration values -->
+    <string name="db_encryption_key" translatable="false">debug_key_not_secure</string>
+</resources>

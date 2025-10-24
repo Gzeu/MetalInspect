@@ -1,10 +1,10 @@
 package com.metalinspect.app.di
 
 import android.content.Context
-import androidx.room.Room
 import com.metalinspect.app.BuildConfig
-import com.metalinspect.app.data.database.InspectionDatabase
-import com.metalinspect.app.data.database.dao.*
+import com.metalinspect.app.data.database.MetalInspectDatabase
+import com.metalinspect.app.data.database.dao.DefectDao
+import com.metalinspect.app.data.database.dao.InspectionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,48 +12,53 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing database-related dependencies
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
     
+    /**
+     * Provides the main database instance with encryption support
+     */
     @Provides
     @Singleton
-    fun provideInspectionDatabase(
+    fun provideMetalInspectDatabase(
         @ApplicationContext context: Context
-    ): InspectionDatabase {
-        return InspectionDatabase.buildDatabase(
+    ): MetalInspectDatabase {
+        // Use encryption in release builds only
+        val passphrase = if (BuildConfig.DEBUG) {
+            null // No encryption in debug for easier development
+        } else {
+            // In production, derive passphrase from secure sources
+            // This could be from Android Keystore, user authentication, etc.
+            BuildConfig.DB_ENCRYPTION_KEY
+        }
+        
+        return MetalInspectDatabase.getDatabase(
             context = context,
-            useEncryption = BuildConfig.DATABASE_ENCRYPTION
+            passphrase = passphrase
         )
     }
     
+    /**
+     * Provides InspectionDao instance
+     */
     @Provides
-    fun provideInspectorDao(database: InspectionDatabase): InspectorDao {
-        return database.inspectorDao()
-    }
-    
-    @Provides
-    fun provideInspectionDao(database: InspectionDatabase): InspectionDao {
+    fun provideInspectionDao(
+        database: MetalInspectDatabase
+    ): InspectionDao {
         return database.inspectionDao()
     }
     
+    /**
+     * Provides DefectDao instance
+     */
     @Provides
-    fun provideProductTypeDao(database: InspectionDatabase): ProductTypeDao {
-        return database.productTypeDao()
-    }
-    
-    @Provides
-    fun provideDefectRecordDao(database: InspectionDatabase): DefectRecordDao {
-        return database.defectRecordDao()
-    }
-    
-    @Provides
-    fun provideInspectionPhotoDao(database: InspectionDatabase): InspectionPhotoDao {
-        return database.inspectionPhotoDao()
-    }
-    
-    @Provides
-    fun provideChecklistDao(database: InspectionDatabase): ChecklistDao {
-        return database.checklistDao()
+    fun provideDefectDao(
+        database: MetalInspectDatabase
+    ): DefectDao {
+        return database.defectDao()
     }
 }
