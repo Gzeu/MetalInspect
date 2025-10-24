@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- Exclude sensitive database and signature files -->
-    <exclude domain="database" />
-    <exclude domain="file" path="signatures/" />
-    <exclude domain="sharedpref" path="inspector_signatures" />
-    
-    <!-- Include app configuration -->
-    <include domain="sharedpref" path="app_preferences" />
-    <include domain="file" path="reports/" />
+    <!-- Exclude Room DB files from backups -->
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="metalinspect.secure.prefs.xml" />
 </full-backup-content>
