@@ -1,30 +1,31 @@
 package com.metalinspect.app.data.pdf
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
-import com.itextpdf.kernel.colors.ColorConstants
-import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.geom.PageSize
-import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
-import com.itextpdf.layout.borders.SolidBorder
-import com.itextpdf.layout.element.Cell
+import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
-import com.itextpdf.layout.property.TextAlignment
+import com.itextpdf.layout.property.HorizontalAlignment
+import com.itextpdf.layout.property.UnitValue
 import com.metalinspect.app.domain.model.Defect
 import com.metalinspect.app.domain.model.Inspection
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * Service that generates a PDF report for a given inspection
+ * Service that generates a PDF report for a given inspection with optional photos.
+ * Photos are downscaled and compressed to keep file size under control.
  */
 class PdfReportGenerator(
-    private val context: Context
+    private val maxImageWidthPx: Int = 1200,
+    private val thumbWidthPx: Int = 240,
+    private val jpegQuality: Int = 70
 ) {
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
 
@@ -34,71 +35,73 @@ class PdfReportGenerator(
         defects: List<Defect>,
         photos: List<Bitmap> = emptyList()
     ) {
-        val writer = PdfWriter(output)
-        val pdf = PdfDocument(writer)
+        val pdf = PdfDocument(PdfWriter(output))
         val doc = Document(pdf, PageSize.A4)
-        val font = PdfFontFactory.createFont()
-        doc.setFont(font)
 
         // Title
-        doc.add(
-            Paragraph("Inspection Report")
-                .setBold()
-                .setFontSize(18f)
-                .setTextAlignment(TextAlignment.CENTER)
-        )
+        doc.add(Paragraph("Inspection Report").setBold().setFontSize(18f))
 
         // Header table
-        val header = Table(floatArrayOf(1f, 2f)).useAllAvailableWidth()
-        header.addCell(headerCell("Vessel"))
-        header.addCell(valueCell(inspection.vesselName))
-        header.addCell(headerCell("Date"))
-        header.addCell(valueCell(dateFormat.format(inspection.inspectionDate)))
-        header.addCell(headerCell("Inspector"))
-        header.addCell(valueCell(inspection.inspectorName))
-        header.addCell(headerCell("Location"))
-        header.addCell(valueCell(inspection.location))
-        header.addCell(headerCell("Cargo"))
-        header.addCell(valueCell("${inspection.cargoDescription} (${inspection.cargoQuantity} ${inspection.cargoUnit})"))
+        val header = Table(UnitValue.createPercentArray(floatArrayOf(1f, 2f))).useAllAvailableWidth()
+        fun addRow(label: String, value: String) {
+            header.addCell(label)
+            header.addCell(value)
+        }
+        addRow("Vessel", inspection.vesselName)
+        addRow("Date", dateFormat.format(inspection.inspectionDate))
+        addRow("Inspector", inspection.inspectorName)
+        addRow("Location", inspection.location)
+        addRow("Cargo", "${inspection.cargoDescription} (${inspection.cargoQuantity} ${inspection.cargoUnit})")
         doc.add(header)
-
         doc.add(Paragraph("\n"))
 
         // Defects table
-        val defectTable = Table(floatArrayOf(1.2f, 0.8f, 3f, 1f)).useAllAvailableWidth()
-        listOf("Type", "Severity", "Description", "%/Qty").forEach { defectTable.addHeaderCell(headerCell(it)) }
+        val defectsTable = Table(UnitValue.createPercentArray(floatArrayOf(1.2f, 0.8f, 3f, 1f))).useAllAvailableWidth()
+        listOf("Type", "Severity", "Description", "%/Qty").forEach { defectsTable.addHeaderCell(it) }
         defects.forEach { d ->
-            defectTable.addCell(valueCell(d.defectType))
-            defectTable.addCell(valueCell(d.severity))
-            defectTable.addCell(valueCell(d.description))
+            defectsTable.addCell(d.defectType)
+            defectsTable.addCell(d.severity)
+            defectsTable.addCell(d.description)
             val pct = d.estimatedAffectedPercentage?.let { String.format(Locale.US, "%.1f%%", it) } ?: "-"
             val qty = d.estimatedAffectedQuantity?.let { String.format(Locale.US, "%.1f", it) } ?: "-"
-            defectTable.addCell(valueCell("$pct / $qty"))
+            defectsTable.addCell("$pct / $qty")
         }
         doc.add(Paragraph("Defects").setBold().setFontSize(14f))
-        doc.add(defectTable)
+        doc.add(defectsTable)
 
-        // Summary
-        val criticalCount = defects.count { it.isCritical }
-        val summary = Table(floatArrayOf(1f, 1f, 1f)).useAllAvailableWidth()
-        summary.addCell(headerCell("Total Defects"))
-        summary.addCell(headerCell("Critical"))
-        summary.addCell(headerCell("Completed"))
-        summary.addCell(valueCell(defects.size.toString()))
-        summary.addCell(valueCell(criticalCount.toString()))
-        summary.addCell(valueCell(if (inspection.isCompleted) "Yes" else "No"))
-        doc.add(Paragraph("Summary").setBold().setFontSize(14f))
-        doc.add(summary)
+        // Photos grid (thumbnails)
+        if (photos.isNotEmpty()) {
+            doc.add(Paragraph("Photos").setBold().setFontSize(14f))
+            val cols = 3
+            val table = Table(UnitValue.createPercentArray(FloatArray(cols) { 1f })).useAllAvailableWidth()
+            photos.forEach { bmp ->
+                val thumb = bmp.scaleToWidth(thumbWidthPx)
+                val img = Image(ImageDataFactory.create(thumb.toJpeg(jpegQuality))).apply {
+                    setAutoScale(true)
+                    setHorizontalAlignment(HorizontalAlignment.CENTER)
+                }
+                table.addCell(img)
+            }
+            doc.add(table)
+        }
 
-        doc.add(Paragraph("\nNotes:")).add(Paragraph(inspection.notes ?: "-")
-            .setBorder(SolidBorder(ColorConstants.LIGHT_GRAY, 0.5f)))
+        // Notes
+        doc.add(Paragraph("\nNotes:").setBold())
+        doc.add(Paragraph(inspection.notes ?: "-") )
 
         doc.close()
     }
+}
 
-    private fun headerCell(text: String): Cell =
-        Cell().add(Paragraph(text).setBold()).setBackgroundColor(ColorConstants.LIGHT_GRAY)
+private fun Bitmap.scaleToWidth(targetWidth: Int): Bitmap {
+    if (width <= targetWidth) return this
+    val ratio = targetWidth.toFloat() / width
+    val targetHeight = (height * ratio).toInt()
+    return Bitmap.createScaledBitmap(this, targetWidth, targetHeight, true)
+}
 
-    private fun valueCell(text: String): Cell =
-        Cell().add(Paragraph(text))
+private fun Bitmap.toJpeg(quality: Int): ByteArray {
+    val bos = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.JPEG, quality.coerceIn(40, 90), bos)
+    return bos.toByteArray()
 }
