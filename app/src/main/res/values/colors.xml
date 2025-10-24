@@ -1,53 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors -->
-    <color name="primary_blue">#1976D2</color>
-    <color name="primary_blue_dark">#1565C0</color>
-    <color name="primary_blue_light">#42A5F5</color>
-    
-    <!-- Secondary colors -->
-    <color name="accent_orange">#FF9800</color>
-    <color name="accent_orange_dark">#F57C00</color>
-    <color name="accent_orange_light">#FFB74D</color>
-    
-    <!-- Status colors -->
-    <color name="status_draft">#9E9E9E</color>
-    <color name="status_in_progress">#FF9800</color>
-    <color name="status_completed">#4CAF50</color>
-    <color name="status_cancelled">#F44336</color>
-    
-    <!-- Severity colors -->
-    <color name="severity_critical">#F44336</color>
-    <color name="severity_major">#FF9800</color>
-    <color name="severity_minor">#FFC107</color>
-    <color name="severity_cosmetic">#9E9E9E</color>
-    
-    <!-- Background colors -->
-    <color name="error_background">#FFEBEE</color>
-    <color name="warning_background">#FFF3E0</color>
-    <color name="success_background">#E8F5E8</color>
-    <color name="info_background">#E3F2FD</color>
-    
-    <!-- Theme colors -->
-    <color name="background_light">#FAFAFA</color>
-    <color name="background_dark">#121212</color>
-    <color name="surface_light">#FFFFFF</color>
-    <color name="surface_dark">#1E1E1E</color>
-    
-    <!-- Text colors -->
-    <color name="text_primary_light">#212121</color>
-    <color name="text_primary_dark">#FFFFFF</color>
-    <color name="text_secondary_light">#757575</color>
-    <color name="text_secondary_dark">#BDBDBD</color>
-    
-    <!-- Standard colors -->
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="transparent">#00FFFFFF</color>
-    
-    <!-- Semantic colors -->
-    <color name="success_green">#4CAF50</color>
-    <color name="error_red">#F44336</color>
-    <color name="warning_yellow">#FF9800</color>
-    <color name="info_blue">#2196F3</color>
+    <color name="md_theme_primary">#1976D2</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_secondary">#FF9800</color>
+    <color name="md_theme_onSecondary">#000000</color>
+    <color name="md_theme_error">#F44336</color>
+    <color name="md_theme_surface">#FAFAFA</color>
+
+    <!-- Dark variants -->
+    <color name="md_theme_primary_dark">#90CAF9</color>
+    <color name="md_theme_surface_dark">#121212</color>
 </resources>
