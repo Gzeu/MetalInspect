@@ -1,61 +1,41 @@
 package com.metalinspect.app.presentation
 
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
-import com.metalinspect.app.R
-import com.metalinspect.app.databinding.ActivityMainBinding
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.metalinspect.app.presentation.components.InspectionStatusCard
+import com.metalinspect.app.presentation.theme.IndustrialTheme
 
-@AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    
-    private lateinit var binding: ActivityMainBinding
-    
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        
-        setupNavigation()
-        setupToolbar()
-    }
-    
-    private fun setupNavigation() {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        
-        binding.bottomNavigation.setupWithNavController(navController)
-        
-        // Handle navigation item selection
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inspections -> {
-                    navController.navigate(R.id.inspectionListFragment)
-                    true
+        setContent {
+            IndustrialTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    DemoScreen()
                 }
-                R.id.nav_camera -> {
-                    navController.navigate(R.id.inspectionCameraFragment)
-                    true
-                }
-                R.id.nav_reports -> {
-                    navController.navigate(R.id.reportListFragment)
-                    true
-                }
-                R.id.nav_settings -> {
-                    navController.navigate(R.id.settingsFragment)
-                    true
-                }
-                else -> false
             }
         }
     }
-    
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
+}
+
+@Composable
+private fun DemoScreen() {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text("MetalInspect - Industrial MVP", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(16.dp))
+        InspectionStatusCard(
+            inspectionId = "INS-001",
+            productId = "PROD-4567",
+            status = "in_progress",
+            progress = 0.35f
+        )
     }
 }
