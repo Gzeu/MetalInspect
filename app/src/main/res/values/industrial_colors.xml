@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Industrial Color System -->
+    <!-- Primary Colors -->
+    <color name="industrial_blue">#1565C0</color>
+    <color name="safety_orange">#FF6B00</color>
+    <color name="metal_gray">#37474F</color>
+    <color name="quality_green">#2E7D32</color>
+    <color name="defect_red">#D32F2F</color>
+    <color name="neutral_silver">#90A4AE</color>
+    
+    <!-- Status Colors -->
+    <color name="warning_amber">#F57C00</color>
+    <color name="in_progress_blue">#1976D2</color>
+    <color name="pending_gray">#616161</color>
+    
+    <!-- Surface Colors -->
+    <color name="surface_light">#F5F5F5</color>
+    <color name="surface_dark">#121212</color>
+    <color name="surface_variant">#263238</color>
+    
+    <!-- Text Colors -->
+    <color name="on_surface_light">#212121</color>
+    <color name="on_surface_dark">#E0E0E0</color>
+    <color name="on_primary">#FFFFFF</color>
+    
+    <!-- Utility Colors -->
+    <color name="divider">#1F000000</color>
+    <color name="shadow">#33000000</color>
+    <color name="overlay">#80000000</color>
+    
+    <!-- Material Design System Compatibility -->
+    <color name="colorPrimary">@color/industrial_blue</color>
+    <color name="colorPrimaryVariant">@color/metal_gray</color>
+    <color name="colorSecondary">@color/safety_orange</color>
+    <color name="colorSecondaryVariant">@color/warning_amber</color>
+    <color name="colorError">@color/defect_red</color>
+    <color name="colorOnPrimary">@color/on_primary</color>
+    <color name="colorOnSecondary">@color/on_primary</color>
+    <color name="colorOnError">@color/on_primary</color>
+    <color name="colorOnBackground">@color/on_surface_light</color>
+    <color name="colorOnSurface">@color/on_surface_light</color>
+</resources>
